@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>图书馆值班系统 - 登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: url('1.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .login-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .icp-info {
+            margin-top: 10px;
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .icp-info::before {
+            content: '🔒';
+            margin-right: 6px;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .music-control {
+            margin-top: 20px;
+        }
+
+        .music-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .music-btn.playing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .login-music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <button id="musicToggle" class="music-btn login-music-btn" title="音乐开关">🎵</button>
+    <iframe id="bgmFrame" src="bgm.html" style="display:none;"></iframe>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgmFrame = document.getElementById('bgmFrame');
+
+            function updateMusicButton(isPlaying) {
+                const btn = document.getElementById('musicToggle');
+                if (btn) {
+                    btn.textContent = isPlaying ? '🔇' : '🎵';
+                    btn.classList.toggle('playing', isPlaying);
+                }
+            }
+
+            window.addEventListener('message', (e) => {
+                if (e.data.type === 'musicState') {
+                    updateMusicButton(e.data.isPlaying);
+                }
+            });
+
+            const musicBtn = document.getElementById('musicToggle');
+            if (musicBtn) {
+                musicBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    bgmFrame.contentWindow.postMessage({ type: 'togglePlay' }, '*');
+                });
+            }
+
+            bgmFrame.addEventListener('load', () => {
+                bgmFrame.contentWindow.postMessage({ type: 'getState' }, '*');
+            });
+        });
+    </script>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <img src="2.jpg" alt="Logo">
+            </div>
+            <h1>图书馆值班系统</h1>
+            <p>请使用您的账号密码登录</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">账号</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="请输入账号"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="请输入密码"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                登录
+            </button>
+
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+
+        <div class="login-footer">
+            <p>© 2026 图书馆值班系统</p>
+            <div class="icp-info">
+                备案/许可证编号为：渝ICP备2026005312号
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // 显示加载状态
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span>登录中...';
+            errorMessage.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.code === 200) {
+                    // 登录成功，保存用户信息到本地存储
+                    localStorage.setItem('userInfo', JSON.stringify(data.data));
+                    
+                    // 跳转到主页面
+                    window.location.href = 'index.html';
+                } else {
+                    // 登录失败
+                    errorMessage.textContent = data.msg || '登录失败，请检查账号密码';
+                    errorMessage.classList.add('show');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                errorMessage.textContent = '网络错误，请稍后重试';
+                errorMessage.classList.add('show');
+            } finally {
+                // 恢复按钮状态
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '登录';
+            }
+        });
+
+        // 检查是否已登录
+        window.addEventListener('load', () => {
+            const userInfo = localStorage.getItem('userInfo');
+            if (userInfo) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

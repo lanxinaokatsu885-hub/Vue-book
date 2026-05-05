@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>可拖拽标签排班表（含工时统计+批注+保存）</title>
+    <link rel="stylesheet" href="style.css?v=1.0.1">
+</head>
+<body>
+    <!-- 返回主页面按钮 -->
+    <button class="back-btn" id="backBtn">返回排班主页面</button>
+
+    <!-- 功能按钮区 -->
+    <div class="annotation-container">
+        <span>快速批注：</span>
+        <div class="annotation-tag" id="add-annotation">（有）</div>
+        <div class="annotation-tag" id="remove-annotation" style="background-color: #F56C6C;">移除批注</div>
+        <span style="color: #666; font-size: 14px;">提示：点击单元格后，可添加/移除「（有）」批注 | 支持 Ctrl+Z 快捷键撤回 | 每个单元格最多添加2人</span>
+        <button id="undo-btn" class="func-btn" disabled>撤回上一步操作</button>
+        <button id="clear-btn" class="func-btn">一键清空表格</button>
+        <button id="save-btn" class="func-btn">保存到服务器</button>
+        <button id="load-btn" class="func-btn">从服务器加载</button>
+        <button id="edit-notice-btn" class="func-btn btn-notice">📢 公告编辑</button>
+        <button id="edit-activity-btn" class="func-btn btn-activity">🎉 活动编辑</button>
+        <button id="edit-shelf-btn" class="func-btn btn-shelf">📚 负责书架编辑</button>
+        <button id="edit-inspect-btn" class="func-btn btn-inspect">🔍 巡查表编辑</button>
+        <button id="user-manage-btn" class="func-btn btn-user">👥 人员管理</button>
+        <button id="link-manage-btn" class="func-btn btn-link">🔗 链接管理</button>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 可拖拽标签区域（按拼音首字母排序+姓名缩写） -->
+    <div class="tag-container">
+        <div class="draggable-tag" draggable="true" data-name="戴佳秀">DJX戴佳秀</div>
+        <div class="draggable-tag" draggable="true" data-name="邓淏堃">DHK邓淏堃</div>
+        <div class="draggable-tag" draggable="true" data-name="范文">FW范文</div>
+        <div class="draggable-tag" draggable="true" data-name="龚纱">GS龚纱</div>
+        <div class="draggable-tag" draggable="true" data-name="甘胤呈">GYC甘胤呈</div>
+        <div class="draggable-tag" draggable="true" data-name="黄路茜">HLX黄路茜</div>
+        <div class="draggable-tag" draggable="true" data-name="贾川">JC贾川</div>
+        <div class="draggable-tag" draggable="true" data-name="贾庆">JQ贾庆</div>
+        <div class="draggable-tag" draggable="true" data-name="李秉羲">LBX李秉羲</div>
+        <div class="draggable-tag" draggable="true" data-name="李豪">LH李豪</div>
+        <div class="draggable-tag" draggable="true" data-name="李延溯">LYS李延溯</div>
+        <div class="draggable-tag" draggable="true" data-name="李盈盈">LYY李盈盈</div>
+        <div class="draggable-tag" draggable="true" data-name="廖航雪">LHX廖航雪</div>
+        <div class="draggable-tag" draggable="true" data-name="刘娟">LJ刘娟</div>
+        <div class="draggable-tag" draggable="true" data-name="刘一德">LYD刘一德</div>
+        <div class="draggable-tag" draggable="true" data-name="刘盛友">LSY刘盛友</div>
+        <div class="draggable-tag" draggable="true" data-name="罗俊毅">LJY罗俊毅</div>
+        <div class="draggable-tag" draggable="true" data-name="孙必发">SBF孙必发</div>
+        <div class="draggable-tag" draggable="true" data-name="唐礼豪">TLH唐礼豪</div>
+        <div class="draggable-tag" draggable="true" data-name="汪鑫烨">WXY汪鑫烨</div>
+        <div class="draggable-tag" draggable="true" data-name="王宏睿">WHR王宏睿</div>
+        <div class="draggable-tag" draggable="true" data-name="王怿萌">WYM王怿萌</div>
+        <div class="draggable-tag" draggable="true" data-name="王鑫源">WXY王鑫源</div>
+        <div class="draggable-tag" draggable="true" data-name="向欢">XH向欢</div>
+        <div class="draggable-tag" draggable="true" data-name="杨玉婷">YYT杨玉婷</div>
+        <div class="draggable-tag" draggable="true" data-name="张艺涵">ZYH张艺涵</div>
+        <div class="draggable-tag" draggable="true" data-name="张先龙">ZXL张先龙</div>
+        <div class="draggable-tag" draggable="true" data-name="张意来">ZYL张意来</div>
+        <div class="draggable-tag" draggable="true" data-name="张鲁阳">ZLY张鲁阳</div>
+        <div class="draggable-tag" draggable="true" data-name="张巧莹">ZQY张巧莹</div>
+        <div class="draggable-tag" draggable="true" data-name="钟琴">ZQ钟琴</div>
+        <div class="draggable-tag" draggable="true" data-name="周俊杰">ZJJ周俊杰</div>
+        <div class="draggable-tag" draggable="true" data-name="朱鋆翔">ZJX朱鋆翔</div>
+    </div>
+
+    <!-- 排班表格（第一周和星期同行，期刊单独行，总服务台对齐期刊） -->
+    <table id="schedule-table">
+        <tr>
+            <td id="weekCell" contenteditable="true">第周</td>
+            <td class="mon" contenteditable="true">星期一</td>
+            <td class="tue" contenteditable="true">星期二</td>
+            <td class="wed" contenteditable="true">星期三</td>
+            <td class="thu" contenteditable="true">星期四</td>
+            <td class="fri" contenteditable="true">星期五</td>
+            <td class="sat" contenteditable="true">星期六</td>
+            <td class="sun" contenteditable="true">星期日</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td colspan="7" contenteditable="true">期刊</td>
+        </tr>
+        <!-- 期刊班次 -->
+        <tr data-shift="白一" data-hour="3">
+            <td contenteditable="true">白一</td>
+            <td class="mon" contenteditable="true" data-shift-day="期刊-白一-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="期刊-白一-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="期刊-白一-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="期刊-白一-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="期刊-白一-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="期刊-白一-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="期刊-白一-周日"></td>
+        </tr>
+        <tr data-shift="白二" data-hour="2">
+            <td contenteditable="true">白二</td>
+            <td class="mon" contenteditable="true" data-shift-day="期刊-白二-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="期刊-白二-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="期刊-白二-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="期刊-白二-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="期刊-白二-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="期刊-白二-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="期刊-白二-周日"></td>
+        </tr>
+        <tr data-shift="白三" data-hour="3">
+            <td contenteditable="true">白三</td>
+            <td class="mon" contenteditable="true" data-shift-day="期刊-白三-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="期刊-白三-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="期刊-白三-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="期刊-白三-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="期刊-白三-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="期刊-白三-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="期刊-白三-周日"></td>
+        </tr>
+        <tr data-shift="白四" data-hour="2">
+            <td contenteditable="true">白四</td>
+            <td class="mon" contenteditable="true" data-shift-day="期刊-白四-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="期刊-白四-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="期刊-白四-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="期刊-白四-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="期刊-白四-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="期刊-白四-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="期刊-白四-周日"></td>
+        </tr>
+        <tr data-shift="晚五" data-hour="4.5">
+            <td contenteditable="true">晚五</td>
+            <td class="mon" contenteditable="true" data-shift-day="期刊-晚五-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="期刊-晚五-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="期刊-晚五-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="期刊-晚五-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="期刊-晚五-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="期刊-晚五-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="期刊-晚五-周日"></td>
+        </tr>
+        <!-- 总服务台一：和期刊对齐（第一列空，后7列合并） -->
+        <tr>
+            <td></td>
+            <td colspan="7" contenteditable="true">总服务台一</td>
+        </tr>
+        <!-- 总服务台一班次 -->
+        <tr data-shift="白一" data-hour="3">
+            <td contenteditable="true">白一</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台一-白一-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台一-白一-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台一-白一-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台一-白一-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台一-白一-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台一-白一-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台一-白一-周日"></td>
+        </tr>
+        <tr data-shift="白二" data-hour="2">
+            <td contenteditable="true">白二</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台一-白二-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台一-白二-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台一-白二-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台一-白二-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台一-白二-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台一-白二-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台一-白二-周日"></td>
+        </tr>
+        <tr data-shift="白三" data-hour="3">
+            <td contenteditable="true">白三</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台一-白三-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台一-白三-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台一-白三-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台一-白三-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台一-白三-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台一-白三-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台一-白三-周日"></td>
+        </tr>
+        <tr data-shift="白四" data-hour="2">
+            <td contenteditable="true">白四</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台一-白四-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台一-白四-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台一-白四-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台一-白四-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台一-白四-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台一-白四-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台一-白四-周日"></td>
+        </tr>
+        <tr data-shift="晚五" data-hour="4.5">
+            <td contenteditable="true">晚五</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台一-晚五-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台一-晚五-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台一-晚五-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台一-晚五-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台一-晚五-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台一-晚五-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台一-晚五-周日"></td>
+        </tr>
+        <!-- 总服务台二：和期刊对齐（第一列空，后7列合并） -->
+        <tr>
+            <td></td>
+            <td colspan="7" contenteditable="true">总服务台二</td>
+        </tr>
+        <!-- 总服务台二班次 -->
+        <tr data-shift="白一" data-hour="3">
+            <td contenteditable="true">白一</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台二-白一-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台二-白一-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台二-白一-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台二-白一-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台二-白一-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台二-白一-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台二-白一-周日"></td>
+        </tr>
+        <tr data-shift="白二" data-hour="2">
+            <td contenteditable="true">白二</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台二-白二-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台二-白二-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台二-白二-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台二-白二-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台二-白二-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台二-白二-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台二-白二-周日"></td>
+        </tr>
+        <tr data-shift="白三" data-hour="3">
+            <td contenteditable="true">白三</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台二-白三-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台二-白三-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台二-白三-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台二-白三-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台二-白三-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台二-白三-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台二-白三-周日"></td>
+        </tr>
+        <tr data-shift="白四" data-hour="2">
+            <td contenteditable="true">白四</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台二-白四-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台二-白四-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台二-白四-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台二-白四-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台二-白四-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台二-白四-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台二-白四-周日"></td>
+        </tr>
+        <tr data-shift="晚五" data-hour="4.5">
+            <td contenteditable="true">晚五</td>
+            <td class="mon" contenteditable="true" data-shift-day="总服务台二-晚五-周一"></td>
+            <td class="tue" contenteditable="true" data-shift-day="总服务台二-晚五-周二"></td>
+            <td class="wed" contenteditable="true" data-shift-day="总服务台二-晚五-周三"></td>
+            <td class="thu" contenteditable="true" data-shift-day="总服务台二-晚五-周四"></td>
+            <td class="fri" contenteditable="true" data-shift-day="总服务台二-晚五-周五"></td>
+            <td class="sat" contenteditable="true" data-shift-day="总服务台二-晚五-周六"></td>
+            <td class="sun" contenteditable="true" data-shift-day="总服务台二-晚五-周日"></td>
+        </tr>
+    </table>
+
+    <!-- 工时统计 -->
+    <div class="work-hour-container">
+        <h3>人员工时统计</h3>
+        <div id="work-hour-list">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 公告编辑弹窗 -->
+    <div class="modal" id="noticeEditModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title">📢 公告编辑</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">公告内容</label>
+                    <textarea class="form-textarea" id="noticeText" placeholder="请输入公告内容..."></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">上传图片（可多选）</label>
+                    <input type="file" class="form-file" id="noticeImage" accept="image/*" multiple>
+                    <div class="image-preview-list" id="noticeImagePreview"></div>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveNoticeBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelNoticeBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 活动编辑弹窗 -->
+    <div class="modal" id="activityEditModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title">🎉 活动编辑</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">活动内容</label>
+                    <textarea class="form-textarea" id="activityText" placeholder="请输入活动内容..."></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">上传图片（可多选）</label>
+                    <input type="file" class="form-file" id="activityImage" accept="image/*" multiple>
+                    <div class="image-preview-list" id="activityImagePreview"></div>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveActivityBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelActivityBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 负责书架编辑弹窗 -->
+    <div class="modal" id="shelfEditModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title">📚 负责书架编辑</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">负责书架内容</label>
+                    <textarea class="form-textarea" id="shelfText" placeholder="请输入负责书架内容..."></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">上传图片（可多选）</label>
+                    <input type="file" class="form-file" id="shelfImage" accept="image/*" multiple>
+                    <div class="image-preview-list" id="shelfImagePreview"></div>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveShelfBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelShelfBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 巡查表编辑弹窗 -->
+    <div class="modal" id="inspectEditModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title">🔍 巡查表编辑</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">巡查表内容</label>
+                    <textarea class="form-textarea" id="inspectText" placeholder="请输入巡查表内容..."></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">上传图片（可多选）</label>
+                    <input type="file" class="form-file" id="inspectImage" accept="image/*" multiple>
+                    <div class="image-preview-list" id="inspectImagePreview"></div>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveInspectBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelInspectBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人员管理弹窗 -->
+    <div class="modal" id="userManageModal">
+        <div class="modal-content user-manage-modal-content">
+            <div class="modal-title">👥 人员管理</div>
+            <div class="user-manage-container">
+                <div class="user-list-container">
+                    <div class="user-list-header">
+                        <span>序号</span>
+                        <span>姓名</span>
+                        <span>账号</span>
+                        <span>角色</span>
+                        <span>操作</span>
+                    </div>
+                    <div class="user-list-body" id="userListBody">
+                    </div>
+                </div>
+                <button class="add-user-btn" id="addUserBtn">+ 添加用户</button>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="closeUserManageBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑/添加用户弹窗 -->
+    <div class="modal" id="userEditModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title" id="userEditModalTitle">编辑用户</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">姓名</label>
+                    <input type="text" class="form-input" id="userEditName" placeholder="请输入姓名">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">账号</label>
+                    <input type="text" class="form-input" id="userEditUsername" placeholder="请输入账号">
+                </div>
+                <div class="form-item" id="userEditPasswordItem">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" id="userEditPassword" placeholder="请输入密码">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">角色</label>
+                    <select class="form-input" id="userEditRole">
+                        <option value="employee">员工</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveUserEditBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelUserEditBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 周次选择弹窗 -->
+    <div class="modal" id="weekSelectModal">
+        <div class="modal-content" style="max-width: 360px;">
+            <div class="modal-title">请选择要加载的周次</div>
+            <div id="weekSelectList" class="week-select-list">
+                <!-- 动态生成 -->
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="cancelWeekSelectBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 链接管理弹窗 -->
+    <div class="modal" id="linkManageModal">
+        <div class="modal-content edit-modal-content">
+            <div class="modal-title">🔗 链接管理</div>
+            <div class="edit-form">
+                <div class="form-item">
+                    <label class="form-label">打卡链接</label>
+                    <input type="text" class="form-input" id="checkinUrl" placeholder="请输入打卡链接">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">活动签到链接</label>
+                    <input type="text" class="form-input" id="activityCheckinUrl" placeholder="请输入活动签到链接">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">活动签退链接</label>
+                    <input type="text" class="form-input" id="activityCheckoutUrl" placeholder="请输入活动签退链接">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">图书查找链接</label>
+                    <input type="text" class="form-input" id="bookSearchUrl" placeholder="请输入图书查找链接">
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="saveLinkBtn">保存</button>
+                <button class="modal-btn cancel-btn" id="cancelLinkBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=1.0.1"></script>
+    
+    <!-- 备案信息 -->
+    <div class="footer">
+        <div class="copyright">© 2026 图书馆值班系统</div>
+        <div class="icp-info">
+            备案/许可证编号为：渝ICP备2026005312号
+        </div>
+    </div>
+</body>
+</html>

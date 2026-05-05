@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>图书馆值班系统</title>
+    <link rel="stylesheet" href="style.css?v=1.0.1">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <h1>图书馆值班系统</h1>
+        <div class="user-info">
+            <button id="musicToggle" class="music-btn" title="音乐开关">🎵</button>
+            <div class="user-avatar" id="userAvatar">JL</div>
+            <div class="user-name" id="userName">登录</div>
+        </div>
+    </div>
+
+    <iframe id="bgmFrame" src="bgm.html" style="display:none;"></iframe>
+
+    <!-- 换班/代班记录折叠面板 -->
+    <div class="notice-panel" id="noticePanel">
+        <div class="notice-toggle" id="noticeToggle">
+            <span class="toggle-icon">📋</span>
+            <span class="toggle-text">换班/代班记录</span>
+            <span class="toggle-arrow" id="toggleArrow">▼</span>
+        </div>
+        <div class="notice-content collapsed" id="noticeContent">
+            <div class="notice-list" id="noticeList">
+                <div class="notice-empty">暂无换班/代班记录</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能按钮区 -->
+    <div class="btn-group">
+        <button class="func-btn" id="editScheduleBtn">排班编辑</button>
+        <button class="func-btn btn-swap" id="swapShiftBtn">和谁换班</button>
+        <button class="func-btn btn-substitute" id="substituteBtn">请人代班</button>
+        <button class="func-btn btn-revoke" id="revokeShiftBtn">撤销代换班</button>
+        <button class="func-btn btn-shelf" id="shelfBtn">负责书架</button>
+        <button class="func-btn btn-inspect" id="inspectBtn">巡查表</button>
+        <button class="func-btn btn-notice" id="noticeBtn">📢 公告</button>
+        <button class="func-btn btn-activity" id="activityBtn">🎉 活动</button>
+        <button class="func-btn btn-activity-checkin" id="activityCheckinBtn">📝 活动签到</button>
+        <button class="func-btn btn-activity-checkout" id="activityCheckoutBtn">📝 活动签退</button>
+        <button class="func-btn btn-search" id="bookSearchBtn">📚 图书查找</button>
+        <button class="func-btn btn-checkin" id="checkinBtn">打卡</button>
+        <span class="checkin-hint">⚠️ 请记得线下签到，电蚊香不要24小时插着</span>
+    </div>
+
+    <!-- 排班表折叠面板 -->
+    <div class="schedule-panel" id="schedulePanel">
+        <div class="schedule-toggle" id="scheduleToggle">
+            <span class="toggle-icon">📅</span>
+            <span class="toggle-text">排班表</span>
+            <span class="toggle-arrow" id="scheduleArrow">▼</span>
+        </div>
+        <div class="schedule-content collapsed" id="scheduleContent">
+            <div class="schedule-container">
+                <div class="week-selector" id="weekSelector">
+                    <span class="week-label">当前周次：</span>
+                    <select class="week-select" id="weekSelect">
+                        <option value="">加载中...</option>
+                    </select>
+                </div>
+                <div class="current-time" id="currentTime"></div>
+                <div class="loading" id="loading">加载中...</div>
+                <table id="scheduleTable" style="display: none;">
+                    <!-- 动态生成排班表 -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 排班密码弹窗 -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-title">排班编辑权限验证</div>
+            <input type="password" class="password-input" id="editPassword" placeholder="请输入排班员密码">
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="confirmPwdBtn">确认</button>
+                <button class="modal-btn cancel-btn" id="cancelPwdBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 负责书架弹窗 -->
+    <div class="modal" id="shelfModal">
+        <div class="modal-content shelf-modal-content">
+            <div class="modal-title">负责书架</div>
+            <div class="shelf-image-container">
+                <img src="4.jpg" alt="负责书架" class="shelf-image">
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="closeShelfBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 巡查表弹窗 -->
+    <div class="modal" id="inspectModal">
+        <div class="modal-content inspect-modal-content">
+            <div class="modal-title">巡查表</div>
+            <div class="inspect-table-container">
+                <table class="inspect-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>姓名</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inspectTableBody">
+                        <!-- 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="inspect-reminder">⚠️ 不要忘记线上打卡和线下签到</div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="closeInspectBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 公告弹窗 -->
+    <div class="modal" id="noticeModal">
+        <div class="modal-content info-modal-content">
+            <div class="modal-title">📢 公告</div>
+            <div class="info-content" id="noticeModalContent">
+                <div class="empty-notice">暂无公告</div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="closeNoticeBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 活动弹窗 -->
+    <div class="modal" id="activityModal">
+        <div class="modal-content info-modal-content">
+            <div class="modal-title">🎉 活动</div>
+            <div class="info-content" id="activityModalContent">
+                <div class="empty-notice">暂无活动</div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn cancel-btn" id="closeActivityBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div class="image-preview-modal" id="imagePreviewModal">
+        <div class="image-preview-container">
+            <button class="image-preview-close" id="closeImagePreview">×</button>
+            <img src="" alt="预览图片" class="image-preview-img" id="previewImage">
+        </div>
+    </div>
+
+    <!-- 换班申请弹窗 -->
+    <div class="modal" id="swapShiftModal">
+        <div class="modal-content form-modal-content">
+            <div class="modal-title">申请换班</div>
+            <div class="form-item">
+                <label class="form-label">原班次</label>
+                <select class="form-select" id="originalShift">
+                    <option value="">请选择原班次</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">换班对象</label>
+                <select class="form-select" id="swapUser">
+                    <option value="">请选择换班人</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">目标班次</label>
+                <select class="form-select" id="targetShift">
+                    <option value="">请选择目标班次</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">换班原因</label>
+                <input type="text" class="form-input" id="swapReason" placeholder="请输入换班原因">
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="confirmSwapBtn">提交申请</button>
+                <button class="modal-btn cancel-btn" id="cancelSwapBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 代班申请弹窗 -->
+    <div class="modal" id="substituteModal">
+        <div class="modal-content form-modal-content">
+            <div class="modal-title">申请代班</div>
+            <div class="form-item">
+                <label class="form-label">代班对象</label>
+                <select class="form-select" id="substituteUser">
+                    <option value="">请选择代班人</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">代班班次</label>
+                <select class="form-select" id="substituteShift">
+                    <option value="">请选择代班班次</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">代班原因</label>
+                <input type="text" class="form-input" id="substituteReason" placeholder="请输入代班原因">
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="confirmSubstituteBtn">提交申请</button>
+                <button class="modal-btn cancel-btn" id="cancelSubstituteBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 撤销代换班弹窗 -->
+    <div class="modal" id="revokeShiftModal">
+        <div class="modal-content form-modal-content">
+            <div class="modal-title">撤销代换班</div>
+            <div class="form-item">
+                <label class="form-label">选择要撤销的记录</label>
+                <select class="form-select" id="revokeRecordSelect">
+                    <option value="">请选择要撤销的记录</option>
+                </select>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="confirmRevokeBtn">确认撤销</button>
+                <button class="modal-btn cancel-btn" id="cancelRevokeBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js?v=1.0.1"></script>
+    
+    <!-- 备案信息 -->
+    <div class="footer">
+        <div class="copyright">© 2026 图书馆值班系统</div>
+        <div class="icp-info">
+            备案/许可证编号为：渝ICP备2026005312号
+        </div>
+    </div>
+</body>
+</html>

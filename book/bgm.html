@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐播放器</title>
+</head>
+<body>
+<script>
+const musicFiles = [
+    'bgm/晴天 - 周杰伦.mp3',
+    'bgm/愿与愁 - 林俊杰.mp3',
+    'bgm/恶作剧 - 王蓝茵.mp3',
+    'bgm/天问 - 刘宇宁.mp3',
+    'bgm/Where Did U Go - G.E.M. 邓紫棋.mp3',
+    'bgm/富士山下 - 陈奕迅.mp3',
+    'bgm/同进退 - 倪浩毅.mp3',
+    'bgm/问情 - 陈亦洺、尚辰.mp3',
+    'bgm/知我 - 国风堂、哦漏.mp3',
+    'bgm/够爱 - 曾沛慈.mp3',
+    'bgm/秘密基地 - 棒棒堂.mp3'
+];
+
+const audio = new Audio();
+let currentIndex = -1;
+let isPlaying = false;
+
+function getState() {
+    const saved = localStorage.getItem('musicState');
+    return saved ? JSON.parse(saved) : { isPlaying: false, currentIndex: -1 };
+}
+
+function saveState() {
+    localStorage.setItem('musicState', JSON.stringify({
+        isPlaying: isPlaying,
+        currentIndex: currentIndex
+    }));
+    parent.postMessage({ type: 'musicState', isPlaying: isPlaying }, '*');
+}
+
+function playMusic(index) {
+    if (musicFiles.length === 0) return;
+
+    let playIndex;
+    if (index !== undefined) {
+        // 使用传入的索引
+        playIndex = index;
+    } else {
+        // 生成随机索引
+        do {
+            playIndex = Math.floor(Math.random() * musicFiles.length);
+        } while (playIndex === currentIndex && musicFiles.length > 1);
+    }
+
+    currentIndex = playIndex;
+    audio.src = musicFiles[playIndex];
+    audio.load();
+
+    audio.onloadedmetadata = () => {
+        const duration = audio.duration;
+        if (duration && isFinite(duration)) {
+            // 随机开始位置（10%-30%的位置）
+            const randomStart = Math.random() * 0.2 + 0.1;
+            audio.currentTime = duration * randomStart;
+        }
+        audio.play().then(() => {
+            isPlaying = true;
+            saveState();
+        }).catch(e => {
+            isPlaying = false;
+            saveState();
+        });
+    };
+
+    audio.onerror = () => {
+        playNext();
+    };
+}
+
+function playNext() {
+    if (musicFiles.length === 0) return;
+    let nextIndex;
+    do {
+        nextIndex = Math.floor(Math.random() * musicFiles.length);
+    } while (nextIndex === currentIndex && musicFiles.length > 1);
+    playMusic(nextIndex); // 传递生成的索引
+}
+
+function togglePlay() {
+    if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        saveState();
+    } else {
+        playMusic();
+    }
+}
+
+audio.addEventListener('ended', playNext);
+
+window.addEventListener('message', (e) => {
+    if (e.data.type === 'togglePlay') {
+        togglePlay();
+    } else if (e.data.type === 'getState') {
+        parent.postMessage({ type: 'musicState', isPlaying: isPlaying }, '*');
+    }
+});
+</script>
+</body>
+</html>
