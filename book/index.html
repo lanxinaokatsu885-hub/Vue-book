@@ -197,9 +197,8 @@
             <div class="modal-title">申请代班</div>
             <div class="form-item">
                 <label class="form-label">代班对象</label>
-                <select class="form-select" id="substituteUser">
-                    <option value="">请选择代班人</option>
-                </select>
+                <input type="text" class="form-input" id="substituteUser" list="substituteUserList" placeholder="请选择或输入代班人员">
+                <datalist id="substituteUserList"></datalist>
             </div>
             <div class="form-item">
                 <label class="form-label">代班班次</label>
@@ -238,7 +237,7 @@
     <!-- 提示弹窗 -->
     <div class="toast" id="toast"></div>
 
-    <script src="script.js?v=1.0.1"></script>
+    <script src="script.js?v=1.0.2"></script>
     
     <!-- 备案信息 -->
     <div class="footer">

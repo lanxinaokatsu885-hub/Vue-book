@@ -336,20 +336,23 @@ function renderScheduleTable() {
 function loadWorkerSelect() {
     const swapUser = document.getElementById('swapUser');
     const substituteUser = document.getElementById('substituteUser');
+    const substituteUserList = document.getElementById('substituteUserList');
     
     // 保存当前选择的值
     const savedSwapUser = swapUser.value;
     const savedSubstituteUser = substituteUser.value;
     
     let options = '<option value="">请选择人员</option>';
+    let datalistOptions = '';
     allWorkers.forEach(worker => {
         if (worker !== currentUser.name) {
             options += `<option value="${worker}">${worker}</option>`;
+            datalistOptions += `<option value="${worker}"></option>`;
         }
     });
     
     swapUser.innerHTML = options;
-    substituteUser.innerHTML = options;
+    substituteUserList.innerHTML = datalistOptions;
     
     // 恢复之前选择的值
     if (savedSwapUser) swapUser.value = savedSwapUser;
