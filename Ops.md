@@ -31,8 +31,8 @@ book/
 │   ├── login.html           # 登录页面
 │   ├── script.js            # 主页面脚本
 │   ├── style.css            # 主页面样式
-│   ├── bgm.html             # 背景音乐页面
-│   └── bgm/                 # 背景音乐文件
+│   ├── bgm.html             # 历史遗留音乐页面（当前页面未接入）
+│   └── bgm/                 # 历史遗留音乐文件
 ├── paiban/                  # 排班后台页面
 │   ├── index.html
 │   ├── script.js

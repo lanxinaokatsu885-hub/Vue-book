@@ -186,78 +186,9 @@
             object-fit: cover;
         }
 
-        .music-control {
-            margin-top: 20px;
-        }
-
-        .music-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            padding: 0;
-        }
-
-        .music-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .music-btn.playing {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .login-music-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
     </style>
 </head>
 <body>
-    <button id="musicToggle" class="music-btn login-music-btn" title="音乐开关">🎵</button>
-    <iframe id="bgmFrame" src="bgm.html" style="display:none;"></iframe>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const bgmFrame = document.getElementById('bgmFrame');
-
-            function updateMusicButton(isPlaying) {
-                const btn = document.getElementById('musicToggle');
-                if (btn) {
-                    btn.textContent = isPlaying ? '🔇' : '🎵';
-                    btn.classList.toggle('playing', isPlaying);
-                }
-            }
-
-            window.addEventListener('message', (e) => {
-                if (e.data.type === 'musicState') {
-                    updateMusicButton(e.data.isPlaying);
-                }
-            });
-
-            const musicBtn = document.getElementById('musicToggle');
-            if (musicBtn) {
-                musicBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    bgmFrame.contentWindow.postMessage({ type: 'togglePlay' }, '*');
-                });
-            }
-
-            bgmFrame.addEventListener('load', () => {
-                bgmFrame.contentWindow.postMessage({ type: 'getState' }, '*');
-            });
-        });
-    </script>
     <div class="login-container">
         <div class="login-header">
             <div class="logo">

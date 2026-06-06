@@ -252,6 +252,14 @@
 - **解决方案**：为静态资源添加版本号，修改Nginx配置添加缓存控制头
 - **修改文件**：`book/index.html`、`paiban/index.html`、Nginx配置文件
 
+### 9.3 移除背景音乐播放功能
+
+- **日期**：2026-06-06
+- **问题描述**：用户端和登录页存在背景音乐播放入口，功能必要性不足，影响页面简洁度
+- **根本原因**：传统页面通过隐藏 iframe 接入 `book/bgm.html`，Vue 3 首页直接使用 `audio` 标签播放静态音乐文件
+- **解决方案**：移除传统主页面和登录页的音乐按钮、隐藏 iframe、消息监听与样式；移除 Vue 3 首页的音乐按钮、`audio` 标签、曲目列表和播放控制函数
+- **修改文件**：`book/index.html`、`book/login.html`、`book/script.js`、`book/style.css`、`client/src/views/HomeView.vue`
+
 ***
 
 ## 十、安全和权限问题

@@ -1,34 +1,3 @@
-// 音乐控制
-const bgmFrame = document.getElementById('bgmFrame');
-
-function updateMusicButton(isPlaying) {
-    const btn = document.getElementById('musicToggle');
-    if (btn) {
-        btn.textContent = isPlaying ? '🔇' : '🎵';
-        btn.classList.toggle('playing', isPlaying);
-    }
-}
-
-window.addEventListener('message', (e) => {
-    if (e.data.type === 'musicState') {
-        updateMusicButton(e.data.isPlaying);
-    }
-});
-
-if (bgmFrame) {
-    bgmFrame.addEventListener('load', () => {
-        bgmFrame.contentWindow.postMessage({ type: 'getState' }, '*');
-    });
-
-    const musicToggleBtn = document.getElementById('musicToggle');
-    if (musicToggleBtn) {
-        musicToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            bgmFrame.contentWindow.postMessage({ type: 'togglePlay' }, '*');
-        });
-    }
-}
-
 // 全局变量
 let currentUser = {
     name: '',

@@ -6,17 +6,12 @@
         <h1>图书馆值班系统</h1>
       </div>
       <div class="top-actions">
-        <el-button circle :type="musicPlaying ? 'primary' : 'default'" @click="toggleMusic">
-          <el-icon><Headset /></el-icon>
-        </el-button>
         <div class="user-chip" @click="logout">
           <span>{{ auth.user?.name?.slice(0, 1) || 'U' }}</span>
           <strong>{{ auth.user?.name }}</strong>
         </div>
       </div>
     </header>
-
-    <audio ref="audioRef" @ended="playRandomTrack"></audio>
 
     <section class="dashboard-grid">
       <article class="hero-panel">
@@ -164,7 +159,7 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Headset, Link, Notebook, Search } from '@element-plus/icons-vue';
+import { Link, Notebook, Search } from '@element-plus/icons-vue';
 
 import ImagePreview from '../components/ImagePreview.vue';
 import ScheduleBoard from '../components/ScheduleBoard.vue';
@@ -182,8 +177,6 @@ const records = ref([]);
 const todayRecords = ref([]);
 const links = ref({});
 const currentTime = ref('');
-const musicPlaying = ref(false);
-const audioRef = ref(null);
 const adminDialog = ref(false);
 const adminPassword = ref('');
 const swapDialog = ref(false);
@@ -198,20 +191,6 @@ const previewImage = ref('');
 
 const swapForm = reactive({ originalShift: '', swapUser: '', targetShift: '', reason: '' });
 const substituteForm = reactive({ substituteUser: '', substituteShift: '', reason: '' });
-
-const trackNames = [
-    'Where Did U Go - G.E.M. 邓紫棋.mp3',
-    '同进退 - 倪浩毅.mp3',
-    '够爱 - 曾沛慈.mp3',
-    '天问 - 刘宇宁.mp3',
-    '富士山下 - 陈奕迅.mp3',
-    '恶作剧 - 王蓝茵.mp3',
-    '愿与愁 - 林俊杰.mp3',
-    '晴天 - 周杰伦.mp3',
-    '知我 - 国风堂、哦漏.mp3',
-    '秘密基地 - 棒棒堂.mp3',
-    '问情 - 陈亦洺、尚辰.mp3'
-];
 
 const workers = computed(() => getWorkerNames(schedule.value));
 const userShifts = computed(() => findUserShifts(schedule.value, auth.user?.name));
@@ -386,30 +365,5 @@ function formatDate(value) {
 
 function recordLabel(record) {
     return `${record.type === 'swap' ? '换班' : '代班'}：${record.applicant} → ${record.target_user} (${record.original_shift})`;
-}
-
-function toggleMusic() {
-    if (!audioRef.value) {
-        return;
-    }
-    if (musicPlaying.value) {
-        audioRef.value.pause();
-        musicPlaying.value = false;
-        return;
-    }
-    playRandomTrack();
-}
-
-function playRandomTrack() {
-    if (!audioRef.value) {
-        return;
-    }
-    const track = trackNames[Math.floor(Math.random() * trackNames.length)];
-    audioRef.value.src = `/static/book/bgm/${encodeURI(track)}`;
-    audioRef.value.play().then(() => {
-        musicPlaying.value = true;
-    }).catch(() => {
-        musicPlaying.value = false;
-    });
 }
 </script>
