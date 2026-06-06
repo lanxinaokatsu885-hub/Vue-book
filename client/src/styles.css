@@ -195,6 +195,10 @@ select {
     margin: 0;
 }
 
+.user-search-input {
+    width: 260px;
+}
+
 .schedule-board {
     display: grid;
     gap: 18px;

@@ -106,8 +106,9 @@
       <div class="dialog-actions">
         <el-button type="primary" @click="editUser()">新增人员</el-button>
         <el-button @click="loadUsers">刷新</el-button>
+        <el-input v-model.trim="userSearch" clearable placeholder="搜索姓名、账号或角色" class="user-search-input" />
       </div>
-      <el-table :data="users" height="420">
+      <el-table :data="filteredUsers" height="420">
         <el-table-column prop="name" label="姓名" min-width="120" />
         <el-table-column prop="username" label="账号" min-width="140" />
         <el-table-column prop="role" label="角色" width="120">
@@ -192,6 +193,7 @@ const selectedWeek = ref('');
 const weekTitle = ref('第一周');
 const schedule = ref({ areas: [] });
 const users = ref([]);
+const userSearch = ref('');
 const draggedPerson = ref('');
 const selectedCell = ref(null);
 const undoStack = ref([]);
@@ -217,8 +219,19 @@ const contentEditor = reactive({
     title: '公告编辑'
 });
 
-const workers = computed(() => getWorkerNames(schedule.value, users.value));
+const adminNames = computed(() => new Set(users.value.filter(isAdminUser).map((user) => user.name).filter(Boolean)));
+const assignableUsers = computed(() => users.value.filter((user) => !isAdminUser(user)));
+const workers = computed(() => getWorkerNames(schedule.value, assignableUsers.value).filter((name) => !adminNames.value.has(name)));
 const hourStats = computed(() => calculateHours(schedule.value));
+const filteredUsers = computed(() => {
+    const keyword = userSearch.value.toLowerCase();
+    if (!keyword) {
+        return users.value;
+    }
+    return users.value.filter((user) => [user.name, user.username, user.role === 'admin' ? '管理员' : '员工']
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(keyword)));
+});
 
 const selectedPersons = computed({
     get() {
@@ -230,8 +243,28 @@ const selectedPersons = computed({
         if (!cell) {
             return;
         }
+        const nextPersons = [...new Set((persons || []).map(String).map((item) => item.trim()).filter(Boolean))];
+        if (nextPersons.length > 2) {
+            ElMessage.warning('每个单元格最多安排 2 人');
+            return;
+        }
+        const adminPerson = nextPersons.find((person) => adminNames.value.has(person));
+        if (adminPerson) {
+            ElMessage.warning(`${adminPerson} 是管理员，不参与人员标签和排班`);
+            return;
+        }
+        const conflictPerson = nextPersons.find((person) => hasConflict(person, cell.area.name, cell.shift.name, cell.dayIndex));
+        if (conflictPerson) {
+            ElMessage.warning(`${conflictPerson} 在该时间段已有其他排班`);
+            return;
+        }
+        const currentValue = joinPersons(splitPersons(cell.shift.days[cell.dayIndex])) || null;
+        const nextValue = joinPersons(nextPersons) || null;
+        if (currentValue === nextValue) {
+            return;
+        }
         remember();
-        cell.shift.days[cell.dayIndex] = joinPersons(persons).slice(0) || null;
+        cell.shift.days[cell.dayIndex] = nextValue;
     }
 });
 
@@ -400,12 +433,16 @@ function removePerson({ area, shift, dayIndex, person }) {
 
 function hasConflict(person, areaName, shiftName, dayIndex) {
     return schedule.value.areas.some((area) => {
-        if (area.name === areaName) {
+        const shift = area.shifts.find((entry) => entry.name === shiftName);
+        if (area.name === areaName && shift?.name === shiftName) {
             return false;
         }
-        const shift = area.shifts.find((entry) => entry.name === shiftName);
         return splitPersons(shift?.days?.[dayIndex]).includes(person);
     });
+}
+
+function isAdminUser(user) {
+    return ['admin', 'scheduler', 'normal'].includes(user?.role);
 }
 
 function openContentEditor(type) {

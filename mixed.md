@@ -276,6 +276,14 @@
 - **解决方案**：将 `/paiban` 正式命名为“管理端”，首页入口改为“编辑管理”；管理端顶部工具条恢复快速批注、撤回、清空、保存、加载、内容编辑、人员管理和链接管理顺序；人员标签池、排班表、星期列底色、批注文案和工时统计按旧版样式限定覆盖
 - **修改文件**：`client/src/views/AdminView.vue`、`client/src/views/HomeView.vue`、`client/src/components/ScheduleBoard.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-cd1c6bdf.js`、`public/assets/index-ba66df69.css`
 
+### 9.6 管理端人员标签和排班冲突校验补强
+
+- **日期**：2026-06-07
+- **问题描述**：管理端人员标签中显示管理员；人员管理弹窗缺少搜索；通过单元格人员下拉编辑时可以绕过拖拽冲突校验，导致同一个人同一时间被排到两个班
+- **根本原因**：人员标签来源直接合并了全部用户；人员表格直接展示全量数据；冲突校验只在拖拽放入单元格时执行，未覆盖右侧单元格编辑器的多选写入
+- **解决方案**：人员标签和单元格候选人员过滤管理员角色；人员管理弹窗新增姓名、账号、角色搜索；单元格人员写入统一校验最多 2 人、禁止管理员参与排班、禁止同一人同一天同一班次跨区域重复排班
+- **修改文件**：`client/src/views/AdminView.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-f288187e.js`、`public/assets/index-fad1bb1c.css`
+
 ***
 
 ## 十、安全和权限问题
