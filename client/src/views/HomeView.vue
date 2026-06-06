@@ -1,78 +1,97 @@
 <template>
-  <main class="app-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Library Duty</p>
+  <main class="legacy-book-page">
+    <header class="legacy-header">
+      <div class="legacy-header-title">
         <h1>图书馆值班系统</h1>
+        <p>{{ shiftText }}</p>
       </div>
-      <div class="top-actions">
-        <div class="user-chip" @click="logout">
-          <span>{{ auth.user?.name?.slice(0, 1) || 'U' }}</span>
-          <strong>{{ auth.user?.name }}</strong>
-        </div>
+      <div class="legacy-user" @click="logout">
+        <span class="legacy-avatar">{{ auth.user?.name?.slice(0, 1) || 'U' }}</span>
+        <strong>{{ auth.user?.name }}</strong>
       </div>
     </header>
 
-    <section class="dashboard-grid">
-      <article class="hero-panel">
-        <div>
-          <p class="eyebrow">当前状态</p>
-          <h2>{{ currentTime }}</h2>
-          <p>{{ shiftText }}</p>
-        </div>
-        <el-select v-model="selectedWeek" placeholder="选择周次" class="week-picker" @change="loadAll">
-          <el-option v-for="week in weeks" :key="week" :label="week" :value="week" />
-        </el-select>
-      </article>
-
-      <article class="quick-panel">
-        <el-button type="primary" @click="openAdmin">排班编辑</el-button>
-        <el-button @click="openSwap">和谁换班</el-button>
-        <el-button @click="openSubstitute">请人代班</el-button>
-        <el-button type="warning" plain @click="openRevoke">撤销代换班</el-button>
-        <el-button @click="openContent('shelf')">负责书架</el-button>
-        <el-button @click="openContent('inspect')">巡查表</el-button>
-        <el-button @click="openContent('notice')">公告</el-button>
-        <el-button @click="openContent('activity')">活动</el-button>
-      </article>
-    </section>
-
-    <section class="link-strip">
-      <el-button v-for="link in externalLinks" :key="link.key" @click="openExternal(link.url)" :disabled="!link.url">
-        <el-icon><component :is="link.icon" /></el-icon>
-        {{ link.label }}
-      </el-button>
-      <span>请记得线下签到，电蚊香不要 24 小时插着。</span>
-    </section>
-
-    <section class="work-area">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Schedule</p>
-          <h2>排班表</h2>
-        </div>
-        <el-button text @click="loadAll">刷新</el-button>
-      </div>
-      <el-alert v-if="!schedule?.areas?.length" title="暂无排班数据" type="info" :closable="false" />
-      <ScheduleBoard v-else :schedule="schedule" />
-    </section>
-
-    <section class="records-panel">
-      <div class="section-head">
+    <section class="legacy-notice-panel">
+      <div
+        class="legacy-panel-toggle"
+        role="button"
+        tabindex="0"
+        :aria-expanded="!recordsCollapsed"
+        @click="recordsCollapsed = !recordsCollapsed"
+        @keyup.enter="recordsCollapsed = !recordsCollapsed"
+      >
         <div>
           <p class="eyebrow">Records</p>
           <h2>换班/代班记录</h2>
         </div>
+        <span>{{ recordsCollapsed ? '展开' : '收起' }}</span>
       </div>
-      <el-empty v-if="!records.length" description="暂无记录" />
-      <el-timeline v-else>
-        <el-timeline-item v-for="record in records" :key="`${record.type}-${record.created_at}`" :timestamp="formatDate(record.created_at)">
-          {{ record.type === 'swap' ? '换班' : '代班' }}：
-          {{ record.applicant }} → {{ record.target_user }}
-          <span class="muted">({{ record.original_shift }}{{ record.target_shift ? ` / ${record.target_shift}` : '' }})</span>
-        </el-timeline-item>
-      </el-timeline>
+      <div v-show="!recordsCollapsed" class="legacy-panel-body">
+        <el-empty v-if="!records.length" description="暂无记录" />
+        <el-timeline v-else>
+          <el-timeline-item v-for="record in records" :key="`${record.type}-${record.created_at}`" :timestamp="formatDate(record.created_at)">
+            {{ record.type === 'swap' ? '换班' : '代班' }}：
+            {{ record.applicant }} → {{ record.target_user }}
+            <span class="muted">({{ record.original_shift }}{{ record.target_shift ? ` / ${record.target_shift}` : '' }})</span>
+          </el-timeline-item>
+        </el-timeline>
+      </div>
     </section>
+
+    <section class="legacy-btn-group">
+      <el-button class="legacy-btn legacy-btn-primary" type="primary" @click="openAdmin">排班编辑</el-button>
+      <el-button class="legacy-btn legacy-btn-swap" @click="openSwap">和谁换班</el-button>
+      <el-button class="legacy-btn legacy-btn-substitute" @click="openSubstitute">请人代班</el-button>
+      <el-button class="legacy-btn legacy-btn-warning" type="warning" plain @click="openRevoke">撤销代换班</el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('shelf')">负责书架</el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('inspect')">巡查表</el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('notice')">公告</el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('activity')">活动</el-button>
+      <el-button
+        v-for="link in externalLinks"
+        :key="link.key"
+        :class="['legacy-btn', 'legacy-btn-link', link.className]"
+        @click="openExternal(link.url)"
+        :disabled="!link.url"
+      >
+        <el-icon><component :is="link.icon" /></el-icon>
+        {{ link.label }}
+      </el-button>
+      <p class="legacy-checkin-hint">请记得线下签到，电蚊香不要 24 小时插着。</p>
+    </section>
+
+    <section class="legacy-schedule-panel">
+      <div
+        class="legacy-panel-toggle"
+        role="button"
+        tabindex="0"
+        :aria-expanded="!scheduleCollapsed"
+        @click="scheduleCollapsed = !scheduleCollapsed"
+        @keyup.enter="scheduleCollapsed = !scheduleCollapsed"
+      >
+        <div>
+          <p class="eyebrow">Schedule</p>
+          <h2>排班表</h2>
+        </div>
+        <span>{{ scheduleCollapsed ? '展开' : '收起' }}</span>
+      </div>
+      <div v-show="!scheduleCollapsed" class="legacy-panel-body">
+        <div class="legacy-schedule-tools">
+          <el-select v-model="selectedWeek" placeholder="选择周次" class="week-picker" @change="loadAll">
+            <el-option v-for="week in weeks" :key="week" :label="week" :value="week" />
+          </el-select>
+          <span class="legacy-current-time">{{ currentTime }}</span>
+          <el-button text @click="loadAll">刷新</el-button>
+        </div>
+        <el-alert v-if="!schedule?.areas?.length" title="暂无排班数据" type="info" :closable="false" />
+        <ScheduleBoard v-else :schedule="schedule" />
+      </div>
+    </section>
+
+    <footer class="legacy-footer">
+      <span>© 2026 图书馆值班系统</span>
+      <span>备案号：待填写</span>
+    </footer>
 
     <el-dialog v-model="adminDialog" title="排班编辑权限验证" width="420px">
       <el-input v-model="adminPassword" type="password" show-password placeholder="请输入排班员密码" @keyup.enter="verifyAdmin" />
@@ -188,6 +207,8 @@ const activeType = ref('notice');
 const activeContent = ref({});
 const previewVisible = ref(false);
 const previewImage = ref('');
+const recordsCollapsed = ref(true);
+const scheduleCollapsed = ref(true);
 
 const swapForm = reactive({ originalShift: '', swapUser: '', targetShift: '', reason: '' });
 const substituteForm = reactive({ substituteUser: '', substituteShift: '', reason: '' });
@@ -203,10 +224,10 @@ const shiftText = computed(() => {
 });
 
 const externalLinks = computed(() => [
-    { key: 'checkinUrl', label: '打卡', url: links.value.checkinUrl, icon: Link },
     { key: 'activityCheckinUrl', label: '活动签到', url: links.value.activityCheckinUrl, icon: Notebook },
     { key: 'activityCheckoutUrl', label: '活动签退', url: links.value.activityCheckoutUrl, icon: Notebook },
-    { key: 'bookSearchUrl', label: '图书查找', url: links.value.bookSearchUrl, icon: Search }
+    { key: 'bookSearchUrl', label: '图书查找', url: links.value.bookSearchUrl, icon: Search, className: 'legacy-btn-search' },
+    { key: 'checkinUrl', label: '打卡', url: links.value.checkinUrl, icon: Link, className: 'legacy-btn-checkin' }
 ]);
 
 onMounted(async () => {

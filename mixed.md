@@ -260,6 +260,14 @@
 - **解决方案**：移除传统主页面和登录页的音乐按钮、隐藏 iframe、消息监听与样式；移除 Vue 3 首页的音乐按钮、`audio` 标签、曲目列表和播放控制函数
 - **修改文件**：`book/index.html`、`book/login.html`、`book/script.js`、`book/style.css`、`client/src/views/HomeView.vue`
 
+### 9.4 Vue 用户端首页还原旧版 book 操作习惯
+
+- **日期**：2026-06-06
+- **问题描述**：Vue 版 `/book` 首页采用后台仪表盘布局，与旧版 `book/index.html` 的顶部记录、功能按钮和折叠排班表操作习惯差异较大
+- **根本原因**：重构时优先采用新的卡片式布局，未完全复刻旧版移动端优先的页面顺序、蓝色顶栏、彩色胶囊按钮和折叠面板样式
+- **解决方案**：将 Vue 首页调整为旧版顺序：蓝色顶栏、换班/代班记录折叠面板、功能按钮区、排班表折叠面板和底部备案；新增限定在 `.legacy-book-page` 下的样式，恢复旧版背景图、按钮渐变、面板颜色和排班表观感
+- **修改文件**：`client/src/views/HomeView.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-2be40276.js`、`public/assets/index-5862c79a.css`
+
 ***
 
 ## 十、安全和权限问题
