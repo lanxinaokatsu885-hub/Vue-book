@@ -268,6 +268,14 @@
 - **解决方案**：将 Vue 首页调整为旧版顺序：蓝色顶栏、换班/代班记录折叠面板、功能按钮区、排班表折叠面板和底部备案；新增限定在 `.legacy-book-page` 下的样式，恢复旧版背景图、按钮渐变、面板颜色和排班表观感
 - **修改文件**：`client/src/views/HomeView.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-2be40276.js`、`public/assets/index-5862c79a.css`
 
+### 9.5 Vue 管理端还原旧版 paiban 编辑台操作习惯
+
+- **日期**：2026-06-07
+- **问题描述**：Vue 版 `/paiban` 页面偏后台卡片布局，与旧版 `paiban/index.html` 的快速批注、顶部功能条、人员标签池和表格编辑台习惯不一致；首页入口仍使用“排班编辑”文案
+- **根本原因**：重构时将排班管理拆成侧栏和主面板，保留了业务能力但弱化了旧版排班编辑台的操作顺序和视觉反馈
+- **解决方案**：将 `/paiban` 正式命名为“管理端”，首页入口改为“编辑管理”；管理端顶部工具条恢复快速批注、撤回、清空、保存、加载、内容编辑、人员管理和链接管理顺序；人员标签池、排班表、星期列底色、批注文案和工时统计按旧版样式限定覆盖
+- **修改文件**：`client/src/views/AdminView.vue`、`client/src/views/HomeView.vue`、`client/src/components/ScheduleBoard.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-cd1c6bdf.js`、`public/assets/index-ba66df69.css`
+
 ***
 
 ## 十、安全和权限问题

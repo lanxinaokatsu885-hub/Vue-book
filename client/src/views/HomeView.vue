@@ -39,7 +39,7 @@
     </section>
 
     <section class="legacy-btn-group">
-      <el-button class="legacy-btn legacy-btn-primary" type="primary" @click="openAdmin">排班编辑</el-button>
+      <el-button class="legacy-btn legacy-btn-primary" type="primary" @click="openAdmin">编辑管理</el-button>
       <el-button class="legacy-btn legacy-btn-swap" @click="openSwap">和谁换班</el-button>
       <el-button class="legacy-btn legacy-btn-substitute" @click="openSubstitute">请人代班</el-button>
       <el-button class="legacy-btn legacy-btn-warning" type="warning" plain @click="openRevoke">撤销代换班</el-button>
@@ -93,7 +93,7 @@
       <span>备案号：待填写</span>
     </footer>
 
-    <el-dialog v-model="adminDialog" title="排班编辑权限验证" width="420px">
+    <el-dialog v-model="adminDialog" title="编辑管理权限验证" width="420px">
       <el-input v-model="adminPassword" type="password" show-password placeholder="请输入排班员密码" @keyup.enter="verifyAdmin" />
       <template #footer>
         <el-button @click="adminDialog = false">取消</el-button>

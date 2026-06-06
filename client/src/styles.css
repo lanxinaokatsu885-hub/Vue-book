@@ -925,3 +925,415 @@ select {
         width: 100%;
     }
 }
+
+.legacy-admin-page.app-shell {
+    min-height: 100vh;
+    padding: 15px;
+    background: #f5f7fa;
+}
+
+.legacy-admin-header.topbar {
+    max-width: none;
+    margin: 0 0 15px;
+    border-radius: 8px;
+    padding: 12px 15px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-admin-header h1 {
+    margin: 0;
+    color: #303133;
+    font-size: 22px;
+}
+
+.legacy-admin-header .eyebrow {
+    color: #409eff;
+}
+
+.legacy-admin-actions .el-button:first-child {
+    border-color: #409eff;
+    background: #409eff;
+    color: #ffffff;
+}
+
+.legacy-admin-toolbar.admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    max-width: none;
+    margin: 0 0 20px;
+    padding: 15px;
+    border: 0;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-admin-toolbar .el-button {
+    margin: 0;
+    border: 0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    color: #ffffff;
+    background: #409eff;
+}
+
+.legacy-admin-toolbar .el-button:hover {
+    color: #ffffff;
+    background: #337ecc;
+}
+
+.legacy-admin-toolbar .el-button.is-disabled,
+.legacy-admin-toolbar .el-button.is-disabled:hover {
+    color: #ffffff;
+    background: #909399;
+    opacity: 0.6;
+}
+
+.legacy-admin-toolbar .week-input,
+.legacy-admin-toolbar .week-picker {
+    width: 180px;
+    min-width: 180px;
+}
+
+.legacy-admin-toolbar-label {
+    color: #303133;
+    font-weight: 700;
+}
+
+.legacy-admin-toolbar-hint {
+    color: #666666;
+    font-size: 14px;
+}
+
+.legacy-admin-annotation-add.el-button,
+.legacy-admin-btn-activity.el-button,
+.legacy-admin-btn-shelf.el-button {
+    background: #67c23a;
+}
+
+.legacy-admin-annotation-add.el-button:hover,
+.legacy-admin-btn-activity.el-button:hover,
+.legacy-admin-btn-shelf.el-button:hover {
+    background: #5daf34;
+}
+
+.legacy-admin-annotation-remove.el-button,
+.legacy-admin-toolbar .el-button.el-button--danger {
+    background: #f56c6c;
+}
+
+.legacy-admin-annotation-remove.el-button:hover,
+.legacy-admin-toolbar .el-button.el-button--danger:hover {
+    background: #f78989;
+}
+
+.legacy-admin-btn-notice.el-button {
+    background: #e6a23c;
+}
+
+.legacy-admin-btn-notice.el-button:hover {
+    background: #cf9236;
+}
+
+.legacy-admin-btn-inspect.el-button {
+    background: #9c27b0;
+}
+
+.legacy-admin-btn-inspect.el-button:hover {
+    background: #8e24aa;
+}
+
+.legacy-admin-btn-user.el-button {
+    background: #606266;
+}
+
+.legacy-admin-btn-user.el-button:hover {
+    background: #4f5155;
+}
+
+.legacy-admin-btn-link.el-button {
+    background: #409eff;
+}
+
+.legacy-admin-layout.admin-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: none;
+    margin: 0;
+}
+
+.legacy-admin-sidebar.side-panel {
+    display: contents;
+}
+
+.legacy-admin-people-head {
+    order: 1;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.legacy-admin-worker-list.tag-cloud {
+    order: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-height: none;
+    overflow: visible;
+    margin: 0;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-admin-worker-tag.worker-tag {
+    border: 0;
+    border-radius: 20px;
+    padding: 8px 16px;
+    background: #409eff;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.legacy-admin-worker-tag.worker-tag:hover {
+    transform: scale(1.05);
+    background: #337ecc;
+}
+
+.legacy-admin-cell-editor.cell-editor {
+    order: 3;
+    margin: 0;
+    border: 0;
+    border-radius: 8px;
+    padding: 15px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-admin-main.main-panel {
+    order: 4;
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.legacy-admin-board-head {
+    width: 80%;
+    min-width: 760px;
+    margin: 0 auto 8px;
+}
+
+.legacy-admin-board-head .eyebrow {
+    color: #409eff;
+}
+
+.legacy-admin-page .schedule-board {
+    display: block;
+}
+
+.legacy-admin-page .area-block {
+    display: block;
+    margin-bottom: 0;
+}
+
+.legacy-admin-page .area-title {
+    width: 80%;
+    min-width: 760px;
+    margin: 0 auto;
+    border: 1px solid #000000;
+    border-bottom: 0;
+    padding: 2px 0;
+    background: #ffffff;
+    color: #303133;
+    text-align: center;
+    font-weight: 500;
+}
+
+.legacy-admin-page .table-wrap {
+    overflow-x: auto;
+    padding-bottom: 12px;
+}
+
+.legacy-admin-page .schedule-table {
+    width: 80%;
+    min-width: 760px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: #ffffff;
+}
+
+.legacy-admin-page .schedule-table th,
+.legacy-admin-page .schedule-table td {
+    border: 1px solid #000000;
+    padding: 8px 6px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.legacy-admin-page .schedule-table th {
+    color: #303133;
+    background: #ffffff;
+}
+
+.legacy-admin-page .schedule-table td {
+    height: 60px;
+    min-height: 60px;
+}
+
+.legacy-admin-page .schedule-table .shift-col {
+    width: 90px;
+}
+
+.legacy-admin-page .schedule-table .mon {
+    background: #ffffcc !important;
+}
+
+.legacy-admin-page .schedule-table .tue {
+    background: #ccffcc !important;
+}
+
+.legacy-admin-page .schedule-table .wed {
+    background: #cce5ff !important;
+}
+
+.legacy-admin-page .schedule-table .thu {
+    background: #ffe6e6 !important;
+}
+
+.legacy-admin-page .schedule-table .fri {
+    background: #ffe5cc !important;
+}
+
+.legacy-admin-page .schedule-table .sat {
+    background: #e6f7ff !important;
+}
+
+.legacy-admin-page .schedule-table .sun {
+    background: #f0fff0 !important;
+}
+
+.legacy-admin-page .schedule-table td.editable:hover {
+    background: #f5f7fa !important;
+}
+
+.legacy-admin-page .schedule-table td.active {
+    outline: 2px solid #409eff;
+    outline-offset: -2px;
+}
+
+.legacy-admin-page .person-list {
+    justify-content: center;
+    gap: 4px;
+    min-height: 20px;
+}
+
+.legacy-admin-page .person-list .el-tag {
+    border-color: rgba(64, 158, 255, 0.12);
+    border-radius: 3px;
+    background: rgba(64, 158, 255, 0.1);
+    color: #303133;
+}
+
+.legacy-admin-page .annotation.el-tag {
+    display: inline-flex;
+    margin-top: 4px;
+    border: 0;
+    background: transparent;
+    color: #67c23a;
+    font-size: 12px;
+}
+
+.legacy-admin-hours.hours-panel {
+    order: 5;
+    margin: 10px 0 0;
+    border: 0;
+    border-radius: 8px;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-admin-hours h2 {
+    margin: 0 0 15px;
+    color: #333333;
+    font-size: 18px;
+}
+
+.legacy-admin-hours .eyebrow {
+    display: none;
+}
+
+.legacy-admin-hours .hour-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+    margin: 0 10px 10px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px 15px;
+    background: #f5f7fa;
+    text-align: center;
+}
+
+.legacy-admin-hours .hour-row span {
+    margin-right: 8px;
+}
+
+@media (max-width: 980px) {
+    .legacy-admin-board-head,
+    .legacy-admin-page .area-title,
+    .legacy-admin-page .schedule-table {
+        width: 100%;
+        min-width: 720px;
+    }
+
+    .legacy-admin-toolbar .week-input,
+    .legacy-admin-toolbar .week-picker {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .legacy-admin-page.app-shell {
+        padding: 10px;
+    }
+
+    .legacy-admin-header.topbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .legacy-admin-toolbar.admin-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .legacy-admin-toolbar .el-button,
+    .legacy-admin-toolbar .week-input,
+    .legacy-admin-toolbar .week-picker {
+        width: 100%;
+    }
+
+    .legacy-admin-worker-list.tag-cloud {
+        gap: 10px;
+    }
+
+    .legacy-admin-worker-tag.worker-tag {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}

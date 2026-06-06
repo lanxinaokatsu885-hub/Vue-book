@@ -1,11 +1,11 @@
 <template>
-  <main class="app-shell admin-shell">
-    <header class="topbar">
+  <main class="app-shell admin-shell legacy-admin-page">
+    <header class="topbar legacy-admin-header">
       <div>
         <p class="eyebrow">Management</p>
-        <h1>排班管理后台</h1>
+        <h1>管理端</h1>
       </div>
-      <div class="top-actions">
+      <div class="top-actions legacy-admin-actions">
         <el-button @click="router.push('/book')">
           <el-icon><Back /></el-icon>
           返回主页
@@ -14,32 +14,42 @@
       </div>
     </header>
 
-    <section class="admin-toolbar">
+    <section class="admin-toolbar legacy-admin-toolbar">
+      <span class="legacy-admin-toolbar-label">快速批注：</span>
+      <el-button class="legacy-admin-annotation-add" :disabled="!selectedCell" @click="selectedAnnotation = true">（有）</el-button>
+      <el-button class="legacy-admin-annotation-remove" :disabled="!selectedCell" @click="selectedAnnotation = false">移除批注</el-button>
+      <span class="legacy-admin-toolbar-hint">点击单元格后，可添加/移除「（有）」批注 | 支持撤回 | 每个单元格最多添加2人</span>
+      <el-button type="warning" :disabled="!undoStack.length" @click="undo">撤回上一步操作</el-button>
+      <el-button @click="clearSchedule">一键清空表格</el-button>
+      <el-button type="primary" @click="saveSchedule">保存到服务器</el-button>
+      <el-button @click="loadSchedule">从服务器加载</el-button>
+      <el-button class="legacy-admin-btn-notice" @click="openContentEditor('notice')">公告编辑</el-button>
+      <el-button class="legacy-admin-btn-activity" @click="openContentEditor('activity')">活动编辑</el-button>
+      <el-button class="legacy-admin-btn-shelf" @click="openContentEditor('shelf')">负责书架编辑</el-button>
+      <el-button class="legacy-admin-btn-inspect" @click="openContentEditor('inspect')">巡查表编辑</el-button>
+      <el-button class="legacy-admin-btn-user" @click="openUsers">人员管理</el-button>
+      <el-button class="legacy-admin-btn-link" @click="openLinks">链接管理</el-button>
       <el-input v-model.trim="weekTitle" placeholder="周次，如 第一周" class="week-input" />
       <el-select v-model="selectedWeek" placeholder="加载已有周次" class="week-picker" @change="loadSchedule">
         <el-option v-for="week in weeks" :key="week" :label="week" :value="week" />
       </el-select>
-      <el-button @click="loadSchedule">加载</el-button>
-      <el-button type="primary" @click="saveSchedule">保存到服务器</el-button>
-      <el-button type="warning" :disabled="!undoStack.length" @click="undo">撤回</el-button>
-      <el-button @click="clearSchedule">清空表格</el-button>
       <el-button type="danger" plain @click="deleteCurrentWeek">删除周次</el-button>
     </section>
 
-    <section class="admin-layout">
-      <aside class="side-panel">
-        <div class="section-head compact">
+    <section class="admin-layout legacy-admin-layout">
+      <aside class="side-panel legacy-admin-sidebar">
+        <div class="section-head compact legacy-admin-section-head legacy-admin-people-head">
           <div>
             <p class="eyebrow">People</p>
             <h2>人员标签</h2>
           </div>
           <el-button text @click="openUsers">管理</el-button>
         </div>
-        <div class="tag-cloud">
+        <div class="tag-cloud legacy-admin-worker-list">
           <button
             v-for="person in workers"
             :key="person"
-            class="worker-tag"
+            class="worker-tag legacy-admin-worker-tag"
             draggable="true"
             @dragstart="draggedPerson = person"
           >
@@ -47,7 +57,7 @@
           </button>
         </div>
 
-        <div class="cell-editor" v-if="selectedCell">
+        <div class="cell-editor legacy-admin-cell-editor" v-if="selectedCell">
           <p class="eyebrow">Selected Cell</p>
           <h3>{{ selectedCell.area }} / {{ selectedCell.shift }} / {{ selectedCell.day }}</h3>
           <el-select v-model="selectedPersons" multiple filterable allow-create default-first-option class="full" placeholder="编辑人员">
@@ -56,9 +66,9 @@
           <el-checkbox v-model="selectedAnnotation">有批注</el-checkbox>
         </div>
 
-        <div class="hours-panel">
+        <div class="hours-panel legacy-admin-hours">
           <p class="eyebrow">Hours</p>
-          <h2>工时统计</h2>
+          <h2>人员工时统计</h2>
           <div v-for="item in hourStats" :key="item.name" class="hour-row">
             <span>{{ item.name }}</span>
             <strong>{{ item.hours }}h</strong>
@@ -66,23 +76,19 @@
         </div>
       </aside>
 
-      <section class="main-panel">
-        <div class="section-head">
+      <section class="main-panel legacy-admin-main">
+        <div class="section-head legacy-admin-section-head legacy-admin-board-head">
           <div>
             <p class="eyebrow">Drag & Drop</p>
             <h2>排班表</h2>
-          </div>
-          <div class="panel-actions">
-            <el-button @click="openContentEditor('notice')">公告编辑</el-button>
-            <el-button @click="openContentEditor('activity')">活动编辑</el-button>
-            <el-button @click="openContentEditor('shelf')">负责书架编辑</el-button>
-            <el-button @click="openContentEditor('inspect')">巡查表编辑</el-button>
-            <el-button @click="openLinks">链接管理</el-button>
           </div>
         </div>
         <ScheduleBoard
           :schedule="schedule"
           editable
+          empty-text=""
+          annotation-text="（有）"
+          :show-shift-hours="false"
           @cell-click="selectCell"
           @cell-drop="dropPerson"
           @remove-person="removePerson"
