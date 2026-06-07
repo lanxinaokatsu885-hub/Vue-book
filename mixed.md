@@ -363,6 +363,14 @@
 - **解决方案**：改为自定义记录卡片列表；代班记录使用浅蓝背景和人员图标，换班记录使用浅红背景和换班图标；记录分行显示时间、标题和班次详情
 - **修改文件**：`client/src/views/HomeView.vue`、`client/src/styles.css`
 
+### 9.14 公网 HTTP 登录页 Web Crypto 兼容问题
+
+- **日期**：2026-06-07
+- **问题描述**：项目通过公网 HTTP IP 访问登录页时提示 `Cannot read properties of undefined (reading 'digest')`
+- **根本原因**：浏览器只在 HTTPS 或 localhost 等安全上下文开放 `crypto.subtle.digest()`，公网 HTTP 下 `crypto.subtle` 为 `undefined`
+- **解决方案**：将前端 SHA-256 计算从 Web Crypto API 改为纯 JavaScript 实现，保持发送给后端的 SHA-256 十六进制密码格式不变，后续配置 HTTPS 后也无需立即回滚
+- **修改文件**：`client/src/services/api.js`、`public/index.html`、`public/assets/index-a3ed04fc.js`
+
 ***
 
 ## 十、安全和权限问题
