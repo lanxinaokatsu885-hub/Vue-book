@@ -18,10 +18,15 @@ async function request(url, options = {}) {
         init.body = JSON.stringify(options.body);
     }
 
-    const response = await fetch(url, init);
+    let response;
+    try {
+        response = await fetch(url, init);
+    } catch (error) {
+        throw new Error('后端服务连接失败，请确认 3000 端口已启动');
+    }
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const message = payload.msg || payload.message || '请求失败';
+        const message = payload.msg || payload.message || (response.status >= 500 ? '后端服务连接失败，请确认 3000 端口已启动' : '请求失败');
         throw new Error(message);
     }
     return payload;

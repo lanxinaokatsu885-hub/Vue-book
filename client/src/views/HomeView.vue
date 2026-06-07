@@ -9,15 +9,14 @@
         <span class="legacy-avatar">{{ auth.user?.name?.slice(0, 1) || 'U' }}</span>
         <strong>{{ auth.user?.name }}</strong>
         <button class="change-password-btn" @click.stop="showChangePasswordDialog = true" title="修改密码">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8.5 14a4.5 4.5 0 1 0 3.85 2.18L21 7.53V4h-3.53l-1.54 1.54 2.5 2.5-1.42 1.42-2.5-2.5-3.58 3.58A4.5 4.5 0 0 0 8.5 14Zm0 2.2a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/>
             </svg>
         </button>
         <button class="logout-btn" @click.stop="logout" title="退出登录">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H13v3H7v12h6v3H6.5A2.5 2.5 0 0 1 4 18.5Z"/>
+                <path d="M15.5 7.5 20 12l-4.5 4.5v-3H10v-3h5.5Z"/>
             </svg>
         </button>
       </div>
@@ -58,14 +57,38 @@
     </section>
 
     <section class="legacy-btn-group">
-      <el-button class="legacy-btn legacy-btn-primary" type="primary" @click="openAdmin">编辑管理</el-button>
-      <el-button class="legacy-btn legacy-btn-swap" @click="openSwap">和谁换班</el-button>
-      <el-button class="legacy-btn legacy-btn-substitute" @click="openSubstitute">请人代班</el-button>
-      <el-button class="legacy-btn legacy-btn-warning" type="warning" plain @click="openRevoke">撤销代换班</el-button>
-      <el-button class="legacy-btn legacy-btn-info" @click="openContent('shelf')">负责书架</el-button>
-      <el-button class="legacy-btn legacy-btn-info" @click="openContent('inspect')">巡查表</el-button>
-      <el-button class="legacy-btn legacy-btn-info" @click="openContent('notice')">公告</el-button>
-      <el-button class="legacy-btn legacy-btn-info" @click="openContent('activity')">活动</el-button>
+      <el-button class="legacy-btn legacy-btn-primary" type="primary" @click="openAdmin">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M6 7.5A2.5 2.5 0 0 1 8.5 5H15v2H8.5a.5.5 0 0 0-.5.5v8A.5.5 0 0 0 8.5 16h8a.5.5 0 0 0 .5-.5V12h2v3.5A2.5 2.5 0 0 1 16.5 18h-8A2.5 2.5 0 0 1 6 15.5Z"/><path class="icon-fill" d="M14.2 10.8 18.9 6.1a1.4 1.4 0 0 1 2 2l-4.7 4.7-2.8.8Z"/></svg>
+          编辑管理
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-swap" @click="openSwap">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M7 6h7.5a3.5 3.5 0 0 1 3.5 3.5V10h-2v-.5A1.5 1.5 0 0 0 14.5 8H7V5L3.8 9 7 13v-3h7.5A3.5 3.5 0 0 1 18 13.5v.5h-2v-.5a1.5 1.5 0 0 0-1.5-1.5H7Z"/></svg>
+          和谁换班
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-substitute" @click="openSubstitute">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM4.5 19c.45-3.2 2.7-5 5.5-5 1.25 0 2.4.35 3.3 1l-1.1 1.5c-.55-.3-1.3-.5-2.2-.5-1.7 0-3 .9-3.45 3Z"/><path class="icon-fill" d="M17 9h2v3h3v2h-3v3h-2v-3h-3v-2h3Z"/></svg>
+          请人代班
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-warning" type="warning" plain @click="openRevoke">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M6 7h12a2 2 0 0 1 2 2v10H4V9a2 2 0 0 1 2-2Zm1 4v2h10v-2Zm0 4v2h7v-2Z"/><path class="icon-fill" d="M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9Z"/></svg>
+          撤销代换班
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('shelf')">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M5 6.5A2.5 2.5 0 0 1 7.5 4H20v15H7.5A2.5 2.5 0 0 0 5 21.5ZM8 7v10h10V7Zm2 2h6v2h-6Zm0 4h5v2h-5Z"/></svg>
+          负责书架
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('inspect')">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M10.5 5a6.5 6.5 0 0 1 5.15 10.45l3.2 3.2-1.4 1.4-3.2-3.2A6.5 6.5 0 1 1 10.5 5Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Zm-1 2h2v5h-2Z"/></svg>
+          巡查表
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('notice')">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M12 4a5 5 0 0 1 5 5v3.5l2 3.5H5l2-3.5V9a5 5 0 0 1 5-5Zm-2.5 18h5a2.7 2.7 0 0 1-5 0Z"/></svg>
+          公告
+      </el-button>
+      <el-button class="legacy-btn legacy-btn-info" @click="openContent('activity')">
+          <svg class="btn-icon btn-icon-solid" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-plate" x="2" y="2" width="20" height="20" rx="7"/><path class="icon-fill" d="M6 6h2V4h2v2h4V4h2v2h2a2 2 0 0 1 2 2v11H4V8a2 2 0 0 1 2-2Zm-1 5v7h14v-7Zm3 2h3v3H8Z"/></svg>
+          活动
+      </el-button>
       <el-button
         v-for="link in externalLinks"
         :key="link.key"
@@ -76,7 +99,6 @@
         <el-icon><component :is="link.icon" /></el-icon>
         {{ link.label }}
       </el-button>
-      <p class="legacy-checkin-hint">请记得线下签到，电蚊香不要 24 小时插着。</p>
     </section>
 
     <section class="legacy-schedule-panel">
@@ -119,7 +141,13 @@
       <span>© 2026 图书馆值班系统</span>
     </footer>
 
-    <el-dialog v-model="adminDialog" title="编辑管理权限验证" width="420px">
+    <el-dialog v-model="adminDialog" width="420px">
+      <template #header>
+          <div class="dialog-title-with-icon">
+              <svg class="dialog-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>编辑管理权限验证</span>
+          </div>
+      </template>
       <el-input v-model="adminPassword" type="password" show-password placeholder="请输入排班员密码" @keyup.enter="verifyAdmin" />
       <template #footer>
         <el-button @click="adminDialog = false">取消</el-button>
@@ -127,7 +155,13 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="swapDialog" title="申请换班" width="520px">
+    <el-dialog v-model="swapDialog" width="520px">
+      <template #header>
+          <div class="dialog-title-with-icon">
+              <svg class="dialog-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 10v12m0 0l4-4m-4 4l-4-4"/></svg>
+              <span>申请换班</span>
+          </div>
+      </template>
       <el-form label-position="top">
         <el-form-item label="原班次">
           <el-select v-model="swapForm.originalShift" filterable placeholder="选择自己的班次" class="full">
@@ -154,7 +188,13 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="substituteDialog" title="申请代班" width="520px">
+    <el-dialog v-model="substituteDialog" width="520px">
+      <template #header>
+          <div class="dialog-title-with-icon">
+              <svg class="dialog-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6m-3-3h6"/></svg>
+              <span>申请代班</span>
+          </div>
+      </template>
       <el-form label-position="top">
         <el-form-item label="代班人">
           <el-select v-model="substituteForm.substituteUser" filterable allow-create placeholder="选择或输入人员" class="full">
@@ -176,7 +216,13 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="revokeDialog" title="撤销当天代换班" width="560px">
+    <el-dialog v-model="revokeDialog" width="560px">
+      <template #header>
+          <div class="dialog-title-with-icon">
+              <svg class="dialog-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h14M3 14h14M4 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>撤销当天代换班</span>
+          </div>
+      </template>
       <el-select v-model="revokeValue" placeholder="选择要撤销的记录" class="full">
         <el-option v-for="record in todayRecords" :key="`${record.type}:${record.id}`" :label="recordLabel(record)" :value="`${record.type}:${record.id}`" />
       </el-select>
@@ -199,7 +245,13 @@
     <ImagePreview v-model="previewVisible" :src="previewImage" />
 
     <!-- 修改密码弹窗 -->
-    <el-dialog v-model="showChangePasswordDialog" title="修改密码" width="400px" :close-on-click-modal="false">
+    <el-dialog v-model="showChangePasswordDialog" width="400px" :close-on-click-modal="false">
+        <template #header>
+            <div class="dialog-title-with-icon">
+                <svg class="dialog-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                <span>修改密码</span>
+            </div>
+        </template>
         <el-form :model="passwordForm" label-width="80px">
             <el-form-item label="旧密码">
                 <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码" show-password />
@@ -496,21 +548,29 @@ async function handleChangePassword() {
 
 .change-password-btn,
 .logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.12);
     border: none;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 4px;
-    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.86);
+    padding: 0;
+    border-radius: 8px;
     transition: all 0.2s;
+}
+
+.change-password-btn svg,
+.logout-btn svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
 }
 
 .change-password-btn:hover,
 .logout-btn:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.22);
 }
 </style>

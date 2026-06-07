@@ -139,7 +139,36 @@ http://localhost:3000
 健康检查：http://localhost:3000/api/health
 ```
 
-### 5.4 本地后台运行
+### 5.4 Vue 3 本地开发启动
+
+Vue 3 前端开发时需要同时启动后端和前端：
+
+```powershell
+node server.js
+npm run client:dev
+```
+
+前端默认地址：
+
+```text
+http://localhost:5173
+```
+
+Vite 已将 `/api`、`/uploads`、`/static` 代理到后端 `http://127.0.0.1:3000`。如果登录页能打开但无法登录，先确认后端端口已监听：
+
+```powershell
+Get-NetTCPConnection -LocalPort 3000
+```
+
+再验证前端代理是否能访问后端：
+
+```powershell
+Invoke-WebRequest -Uri "http://127.0.0.1:5173/api/list-weeks" -UseBasicParsing
+```
+
+如果返回 `code: 200`，说明代理和后端连接正常；如果无法连接到远程服务器，先启动或重启 `node server.js`。
+
+### 5.5 本地后台运行
 
 Windows 下可使用：
 
