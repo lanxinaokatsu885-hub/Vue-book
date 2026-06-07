@@ -42,7 +42,7 @@ const form = reactive({
     username: '',
     password: ''
 });
-const logoSrc = '/static/book/1.jpg';
+const logoSrc = '/1.jpg';
 
 async function submit() {
     if (!form.username || !form.password) {

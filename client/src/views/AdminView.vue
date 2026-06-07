@@ -22,14 +22,19 @@
       <el-button type="warning" :disabled="!undoStack.length" @click="undo">撤回上一步操作</el-button>
       <el-button @click="clearSchedule">一键清空表格</el-button>
       <el-button type="primary" @click="saveSchedule">保存到服务器</el-button>
-      <el-button @click="loadSchedule">从服务器加载</el-button>
       <el-button class="legacy-admin-btn-notice" @click="openContentEditor('notice')">公告编辑</el-button>
       <el-button class="legacy-admin-btn-activity" @click="openContentEditor('activity')">活动编辑</el-button>
       <el-button class="legacy-admin-btn-shelf" @click="openContentEditor('shelf')">负责书架编辑</el-button>
       <el-button class="legacy-admin-btn-inspect" @click="openContentEditor('inspect')">巡查表编辑</el-button>
       <el-button class="legacy-admin-btn-user" @click="openUsers">人员管理</el-button>
       <el-button class="legacy-admin-btn-link" @click="openLinks">链接管理</el-button>
-      <el-input v-model.trim="weekTitle" placeholder="周次，如 第一周" class="week-input" />
+      <el-input-number v-model="weekParts.year" :min="2020" :max="2100" controls-position="right" class="week-year-input" @change="selectedWeek = ''" />
+      <el-select v-model="weekParts.semester" placeholder="选择学期" class="semester-picker" @change="selectedWeek = ''">
+        <el-option v-for="semester in semesterOptions" :key="semester" :label="semester" :value="semester" />
+      </el-select>
+      <el-input-number v-model="weekParts.weekNumber" :min="1" :max="30" controls-position="right" class="week-number-input" @change="selectedWeek = ''" />
+      <el-input :model-value="weekTitle" readonly class="week-input" />
+      <el-button @click="loadSchedule">加载/开始编辑</el-button>
       <el-select v-model="selectedWeek" placeholder="加载已有周次" class="week-picker" @change="loadSchedule">
         <el-option v-for="week in weeks" :key="week" :label="week" :value="week" />
       </el-select>
@@ -84,14 +89,22 @@
           </div>
         </div>
         <ScheduleBoard
+          v-if="schedule?.areas?.length"
           :schedule="schedule"
           editable
           empty-text=""
           annotation-text="（有）"
-          :show-shift-hours="false"
+          :current-user-name="auth.user?.name || ''"
+          :show-shift-hours="true"
           @cell-click="selectCell"
           @cell-drop="dropPerson"
           @remove-person="removePerson"
+        />
+        <el-alert
+          v-else
+          title="请先确认年份、学期和周数，然后点击“加载/开始编辑”；也可以从已有周次下拉框选择旧表。"
+          type="info"
+          :closable="false"
         />
       </section>
     </section>
@@ -183,6 +196,7 @@ import ContentEditorDialog from '../components/ContentEditorDialog.vue';
 import ScheduleBoard from '../components/ScheduleBoard.vue';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import { formatAcademicWeekTitle, getCurrentAcademicWeekParts, parseAcademicWeekTitle, semesterOptions, toChineseNumber } from '../utils/academicWeek';
 import { DAYS, calculateHours, cloneSchedule, getWorkerNames, joinPersons, splitPersons, toScheduleRows } from '../utils/schedule';
 
 const router = useRouter();
@@ -190,7 +204,15 @@ const auth = useAuthStore();
 
 const weeks = ref([]);
 const selectedWeek = ref('');
-const weekTitle = ref('第一周');
+const weekParts = reactive(getCurrentAcademicWeekParts());
+const weekTitle = computed({
+    get() {
+        return formatAcademicWeekTitle(weekParts);
+    },
+    set(value) {
+        Object.assign(weekParts, parseAcademicWeekTitle(value));
+    }
+});
 const schedule = ref({ areas: [] });
 const users = ref([]);
 const userSearch = ref('');
@@ -286,9 +308,8 @@ const selectedAnnotation = computed({
 onMounted(async () => {
     await loadUsers();
     weeks.value = await api.listWeeks();
-    selectedWeek.value = weeks.value[0] || '第一周';
-    weekTitle.value = selectedWeek.value;
-    await loadSchedule();
+    selectedWeek.value = '';
+    schedule.value = { areas: [] };
 });
 
 function logout() {
@@ -297,9 +318,23 @@ function logout() {
 }
 
 async function loadSchedule() {
+    const targetWeek = selectedWeek.value || weekTitle.value;
+    if (!targetWeek) {
+        ElMessage.warning('请先填写年份、学期和周数');
+        return;
+    }
+    const legacyWeek = `第${toChineseNumber(weekParts.weekNumber)}周`;
+    const shouldFallbackToLegacy = !selectedWeek.value
+        && !weeks.value.includes(targetWeek)
+        && weeks.value.includes(legacyWeek);
+    const loadWeek = shouldFallbackToLegacy ? legacyWeek : targetWeek;
     try {
-        schedule.value = await api.getSchedule(selectedWeek.value || weekTitle.value);
-        weekTitle.value = selectedWeek.value || schedule.value.week || weekTitle.value || '第一周';
+        schedule.value = await api.getSchedule(loadWeek);
+        if (shouldFallbackToLegacy) {
+            schedule.value.week = targetWeek;
+            ElMessage.info(`已载入旧表 ${legacyWeek}，保存后会写入 ${targetWeek}`);
+        }
+        weekTitle.value = targetWeek;
         undoStack.value = [];
         selectedCell.value = null;
     } catch (error) {
@@ -309,7 +344,11 @@ async function loadSchedule() {
 
 async function saveSchedule() {
     if (!weekTitle.value) {
-        ElMessage.warning('请填写周次');
+        ElMessage.warning('请先填写年份、学期和周数');
+        return;
+    }
+    if (!schedule.value?.areas?.length) {
+        ElMessage.warning('请先点击“加载/开始编辑”');
         return;
     }
     try {
@@ -327,15 +366,16 @@ async function saveSchedule() {
 }
 
 async function deleteCurrentWeek() {
-    if (!weekTitle.value) {
+    const deleteWeek = selectedWeek.value || weekTitle.value;
+    if (!deleteWeek) {
         return;
     }
     try {
-        await ElMessageBox.confirm(`确认删除 ${weekTitle.value} 的排班数据？`, '删除确认', { type: 'warning' });
-        await api.deleteSchedule(weekTitle.value);
+        await ElMessageBox.confirm(`确认删除 ${deleteWeek} 的排班数据？`, '删除确认', { type: 'warning' });
+        await api.deleteSchedule(deleteWeek);
         ElMessage.success('删除成功');
         weeks.value = await api.listWeeks();
-        selectedWeek.value = weeks.value[0] || '第一周';
+        selectedWeek.value = weeks.value[0] || weekTitle.value;
         weekTitle.value = selectedWeek.value;
         await loadSchedule();
     } catch (error) {

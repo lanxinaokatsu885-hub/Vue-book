@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const apiRoutes = require('./routes');
-const { bookDir, publicDir, uploadDir } = require('./config/paths');
+const { publicDir, uploadDir } = require('./config/paths');
 
 function sendSpaEntry(req, res, next) {
     const entry = path.join(publicDir, 'index.html');
@@ -23,7 +23,6 @@ function createApp() {
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
     app.use('/uploads', express.static(uploadDir));
-    app.use('/static/book', express.static(bookDir));
     app.use('/api', apiRoutes);
 
     app.use(express.static(publicDir));
@@ -41,7 +40,7 @@ function createApp() {
     ], sendSpaEntry);
 
     app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/static')) {
+        if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
             return next();
         }
         if (path.extname(req.path)) {

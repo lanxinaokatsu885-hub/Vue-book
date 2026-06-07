@@ -28,6 +28,27 @@ async function initDatabase() {
         connection = await pool.getConnection();
         console.log('数据库连接成功');
 
+        await connection.query(`CREATE TABLE IF NOT EXISTS schedule_data (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            data JSON NOT NULL COMMENT 'schedule data json',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'created time',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'updated time',
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='schedule data table'`);
+
+        await connection.query(`CREATE TABLE IF NOT EXISTS schedule_data_archive (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            original_id INT NULL,
+            week VARCHAR(50) NOT NULL DEFAULT '',
+            data JSON NOT NULL COMMENT 'archived schedule data json',
+            archived_reason VARCHAR(100) NOT NULL DEFAULT 'delete-schedule',
+            original_created_at TIMESTAMP NULL,
+            original_updated_at TIMESTAMP NULL,
+            archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_week_archived_at (week, archived_at),
+            INDEX idx_original_id (original_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='schedule data archive table'`);
+
         const [swapColumns] = await connection.query("SHOW COLUMNS FROM swap_requests LIKE 'week'");
         if (swapColumns.length === 0) {
             await connection.query("ALTER TABLE swap_requests ADD COLUMN week VARCHAR(50) NOT NULL DEFAULT ''");

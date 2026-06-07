@@ -5,9 +5,21 @@
         <h1>图书馆值班系统</h1>
         <p>{{ shiftText }}</p>
       </div>
-      <div class="legacy-user" @click="logout">
+      <div class="legacy-user">
         <span class="legacy-avatar">{{ auth.user?.name?.slice(0, 1) || 'U' }}</span>
         <strong>{{ auth.user?.name }}</strong>
+        <button class="change-password-btn" @click.stop="showChangePasswordDialog = true" title="修改密码">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </svg>
+        </button>
+        <button class="logout-btn" @click.stop="logout" title="退出登录">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+        </button>
       </div>
     </header>
 
@@ -28,13 +40,20 @@
       </div>
       <div v-show="!recordsCollapsed" class="legacy-panel-body">
         <el-empty v-if="!records.length" description="暂无记录" />
-        <el-timeline v-else>
-          <el-timeline-item v-for="record in records" :key="`${record.type}-${record.created_at}`" :timestamp="formatDate(record.created_at)">
-            {{ record.type === 'swap' ? '换班' : '代班' }}：
-            {{ record.applicant }} → {{ record.target_user }}
-            <span class="muted">({{ record.original_shift }}{{ record.target_shift ? ` / ${record.target_shift}` : '' }})</span>
-          </el-timeline-item>
-        </el-timeline>
+        <div v-else class="legacy-record-list">
+          <article
+            v-for="record in records"
+            :key="`${record.type}-${record.created_at}-${record.applicant}-${record.target_user}`"
+            :class="['legacy-record-card', record.type]"
+          >
+            <span class="legacy-record-icon">{{ record.type === 'swap' ? '🔄' : '👥' }}</span>
+            <div class="legacy-record-content">
+              <time>{{ formatDate(record.created_at) }}</time>
+              <strong>{{ recordTitle(record) }}</strong>
+              <p>班次：{{ recordShiftText(record) }}</p>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -81,16 +100,23 @@
             <el-option v-for="week in weeks" :key="week" :label="week" :value="week" />
           </el-select>
           <span class="legacy-current-time">{{ currentTime }}</span>
-          <el-button text @click="loadAll">刷新</el-button>
+          <el-button class="legacy-refresh-btn" @click="loadAll">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 6v5h-5" />
+              <path d="M4 18v-5h5" />
+              <path d="M18.2 9A7 7 0 0 0 6.8 6.2L4 9" />
+              <path d="M5.8 15a7 7 0 0 0 11.4 2.8L20 15" />
+            </svg>
+            <span>刷新</span>
+          </el-button>
         </div>
         <el-alert v-if="!schedule?.areas?.length" title="暂无排班数据" type="info" :closable="false" />
-        <ScheduleBoard v-else :schedule="schedule" />
+        <ScheduleBoard v-else :schedule="schedule" :current-user-name="auth.user?.name || ''" annotation-text="（有）" />
       </div>
     </section>
 
     <footer class="legacy-footer">
       <span>© 2026 图书馆值班系统</span>
-      <span>备案号：待填写</span>
     </footer>
 
     <el-dialog v-model="adminDialog" title="编辑管理权限验证" width="420px">
@@ -171,6 +197,25 @@
     </el-dialog>
 
     <ImagePreview v-model="previewVisible" :src="previewImage" />
+
+    <!-- 修改密码弹窗 -->
+    <el-dialog v-model="showChangePasswordDialog" title="修改密码" width="400px" :close-on-click-modal="false">
+        <el-form :model="passwordForm" label-width="80px">
+            <el-form-item label="旧密码">
+                <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码" show-password />
+            </el-form-item>
+            <el-form-item label="新密码">
+                <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码（至少6位）" show-password />
+            </el-form-item>
+            <el-form-item label="确认密码">
+                <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" show-password />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button @click="showChangePasswordDialog = false">取消</el-button>
+            <el-button type="primary" :loading="changePasswordLoading" @click="handleChangePassword">确认修改</el-button>
+        </template>
+    </el-dialog>
   </main>
 </template>
 
@@ -184,6 +229,7 @@ import ImagePreview from '../components/ImagePreview.vue';
 import ScheduleBoard from '../components/ScheduleBoard.vue';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import { defaultAcademicWeekTitle } from '../utils/academicWeek';
 import { currentDayIndex, currentShift, findUserShifts, getWorkerNames } from '../utils/schedule';
 
 const router = useRouter();
@@ -209,6 +255,14 @@ const previewVisible = ref(false);
 const previewImage = ref('');
 const recordsCollapsed = ref(true);
 const scheduleCollapsed = ref(true);
+
+const showChangePasswordDialog = ref(false);
+const changePasswordLoading = ref(false);
+const passwordForm = reactive({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+});
 
 const swapForm = reactive({ originalShift: '', swapUser: '', targetShift: '', reason: '' });
 const substituteForm = reactive({ substituteUser: '', substituteShift: '', reason: '' });
@@ -250,7 +304,7 @@ function tick() {
 async function loadBootstrap() {
     try {
         weeks.value = await api.listWeeks();
-        selectedWeek.value = weeks.value[0] || '第一周';
+        selectedWeek.value = weeks.value[0] || defaultAcademicWeekTitle();
         links.value = await api.getLinks();
         await loadAll();
     } catch (error) {
@@ -387,4 +441,76 @@ function formatDate(value) {
 function recordLabel(record) {
     return `${record.type === 'swap' ? '换班' : '代班'}：${record.applicant} → ${record.target_user} (${record.original_shift})`;
 }
+
+function recordTitle(record) {
+    return `${record.applicant} 与 ${record.target_user} ${record.type === 'swap' ? '换班' : '代班'}`;
+}
+
+function recordShiftText(record) {
+    if (record.type === 'swap' && record.target_shift) {
+        return `${record.original_shift} ↔ ${record.target_shift}`;
+    }
+    return record.original_shift || '未记录';
+}
+
+async function handleChangePassword() {
+    if (!passwordForm.oldPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+        ElMessage.warning('请填写完整信息');
+        return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+        ElMessage.warning('新密码长度不能少于6位');
+        return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+        ElMessage.warning('两次输入的新密码不一致');
+        return;
+    }
+    changePasswordLoading.value = true;
+    try {
+        await api.changePassword(auth.user.id, passwordForm.oldPassword, passwordForm.newPassword);
+        ElMessage.success('密码修改成功，请重新登录');
+        showChangePasswordDialog.value = false;
+        passwordForm.oldPassword = '';
+        passwordForm.newPassword = '';
+        passwordForm.confirmPassword = '';
+        // 修改密码成功后退出登录
+        setTimeout(() => {
+            auth.logout();
+            router.replace('/login');
+        }, 1500);
+    } catch (error) {
+        ElMessage.error(error.message || '修改失败');
+    } finally {
+        changePasswordLoading.value = false;
+    }
+}
 </script>
+
+<style scoped>
+.legacy-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.change-password-btn,
+.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.change-password-btn:hover,
+.logout-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+</style>

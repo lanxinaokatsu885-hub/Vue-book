@@ -284,6 +284,62 @@
 - **解决方案**：人员标签和单元格候选人员过滤管理员角色；人员管理弹窗新增姓名、账号、角色搜索；单元格人员写入统一校验最多 2 人、禁止管理员参与排班、禁止同一人同一天同一班次跨区域重复排班
 - **修改文件**：`client/src/views/AdminView.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-f288187e.js`、`public/assets/index-fad1bb1c.css`
 
+### 9.7 排班表姓名批注与当前用户高亮显示
+
+- **日期**：2026-06-07
+- **问题描述**：前端排班表中批注单独显示为标签，不符合姓名后追加“（有）”的展示要求；当前登录用户姓名缺少突出显示
+- **根本原因**：`ScheduleBoard` 组件将批注作为单独的 `el-tag` 渲染，且未接收当前用户姓名用于姓名级别高亮判断
+- **解决方案**：将批注文本拼接到对应姓名后显示为“姓名（有）”；新增 `currentUserName` 参数并在用户端、后台页传入当前登录用户；为当前用户姓名添加黄色高亮样式
+- **修改文件**：`client/src/components/ScheduleBoard.vue`、`client/src/views/HomeView.vue`、`client/src/views/AdminView.vue`、`client/src/styles.css`
+
+### 9.8 排班表周次命名改为年份学期周数格式
+
+- **日期**：2026-06-07
+- **问题描述**：排班表原来只用“第十三周”这类周次命名，缺少年份和学期，后续跨学期保存容易混淆
+- **根本原因**：编辑管理页使用单个周次字符串输入，保存时直接把该字符串写入 `schedule_data.data.week`
+- **解决方案**：新增学期周次工具，按日期默认生成“2026年第一学期第十三周”格式；管理端拆分为年份、学期、周数和生成表名控件；保存新表时使用完整格式，旧周次仍可从下拉框加载
+- **修改文件**：`client/src/utils/academicWeek.js`、`client/src/views/AdminView.vue`、`client/src/views/HomeView.vue`、`client/src/styles.css`
+
+### 9.9 代换班后排班数据重复新增
+
+- **日期**：2026-06-07
+- **问题描述**：每次换班、代班、撤销或保存排班后，`schedule_data` 表都会新增一条同周次数据，导致同一周出现多条历史行
+- **根本原因**：排班保存、换班、代班、撤销逻辑都直接调用 `insertSchedule`，没有按 `week` 更新已有最新记录
+- **解决方案**：新增 `upsertLatestSchedule`，同一 `week` 已存在时更新最新行的 `data` 和 `updated_at`，不存在时才插入新行；四个业务写入入口统一改为 upsert
+- **修改文件**：`src/server/repositories/scheduleRepository.js`、`src/server/services/scheduleService.js`
+
+### 9.10 管理端排班表编辑入口和班次时长显示
+
+- **日期**：2026-06-07
+- **问题描述**：管理端进入页面后直接加载排班表，容易在未确认年份、学期和周数时开始编辑；排班表左侧班次下方未显示对应时长
+- **根本原因**：`AdminView` 初始化时自动加载最新周次；管理端 `ScheduleBoard` 关闭了班次时长显示
+- **解决方案**：进入管理端只加载人员和周次列表，排班表先显示提示；确认年份、学期和周数后点击“加载/开始编辑”才加载或创建对应周次；已有周次下拉仍可直接加载；管理端排班表开启班次时长显示并补充样式
+- **修改文件**：`client/src/views/AdminView.vue`、`client/src/styles.css`
+
+### 9.11 用户端和管理端排班表合并为单张表
+
+- **日期**：2026-06-07
+- **问题描述**：Vue 排班表按区域拆成多张表，与旧版单张排班表结构不一致
+- **根本原因**：`ScheduleBoard` 按 `area` 循环渲染独立表格，区域标题在表格外部，时长也没有作为整张表底部信息展示
+- **解决方案**：将用户端和管理端共用的 `ScheduleBoard` 改为单张表：表头显示周次和星期，区域作为灰色分隔行，所有班次行连续展示；底部统一展示班次时间段和时长
+- **修改文件**：`client/src/components/ScheduleBoard.vue`、`client/src/styles.css`
+
+### 9.12 管理端新周次加载旧表兜底
+
+- **日期**：2026-06-07
+- **问题描述**：管理端选择年份、学期和周数后点击“加载/开始编辑”，如果新格式周次尚未保存，会得到空表；同时按钮位置不在生成表名输入框后方
+- **根本原因**：加载逻辑只按完整新格式周次查询，未兼容旧的“第十三周”数据；工具栏按钮顺序仍沿用原布局
+- **解决方案**：将“加载/开始编辑”移动到生成表名输入框后；当 `2026年第一学期第十三周` 不存在但 `第十三周` 存在时，自动载入旧表内容并把当前表名设为新格式，保存后写入新格式周次
+- **修改文件**：`client/src/views/AdminView.vue`
+
+### 9.13 代换班记录恢复旧版卡片样式
+
+- **日期**：2026-06-07
+- **问题描述**：用户端代换班记录使用 Element Timeline 样式，与旧版蓝色代班、红色换班记录卡片不一致
+- **根本原因**：Vue 首页重构时改用 `el-timeline` 渲染记录，未保留旧版图标、背景色和分行展示结构
+- **解决方案**：改为自定义记录卡片列表；代班记录使用浅蓝背景和人员图标，换班记录使用浅红背景和换班图标；记录分行显示时间、标题和班次详情
+- **修改文件**：`client/src/views/HomeView.vue`、`client/src/styles.css`
+
 ***
 
 ## 十、安全和权限问题
@@ -303,6 +359,35 @@
 - **问题描述**：需要在页面底部显示备案号
 - **解决方案**：在主页面、排班页面和登录页面底部添加备案号，使用红色文字居中显示
 - **修改文件**：`book/index.html`、`paiban/index.html`、`book/login.html`
+
+### 10.4 密码明文存储与传输安全问题
+
+- **问题描述**：用户密码在数据库中以明文存储，登录时前端以明文形式传输密码，存在严重安全隐患。在 DevTools Network 面板中可直接看到原始密码。
+- **根本原因**：
+  1. 数据库 `users` 表的 `password` 字段直接存储明文密码（如 `123456`、`654321`）
+  2. 后端 `findByCredentials` 使用 SQL `WHERE password = ?` 直接比对明文
+  3. 前端登录时直接发送 `{ username, password }` 原始密码
+  4. `resetPassword` 将密码重置为明文 `123456`
+- **解决方案**：采用 **SHA-256 + bcrypt 双层加密**方案
+  - **前端**：用户输入密码后，先使用 Web Crypto API 的 `crypto.subtle.digest('SHA-256')` 进行 SHA-256 哈希，再将哈希值发送到后端
+  - **后端存储**：收到前端传来的 SHA-256 哈希值后，再用 `bcrypt.hash(sha256_value, 10)` 生成 bcrypt 哈希存入数据库
+  - **后端验证**：登录时使用 `bcrypt.compare(前端SHA256值, 数据库bcrypt值)` 进行比对
+- **修改文件**：
+  - `client/src/services/api.js` — Vue 前端登录加 SHA-256 哈希
+  - `book/login.html` — 旧版前端登录加 SHA-256 哈希
+  - `src/server/repositories/userRepository.js` — 后端数据层：引入 crypto 模块，createUser/resetPassword 使用 `bcrypt.hash(sha256(password), 10)`，findByCredentials 使用 bcrypt.compare
+  - `src/server/services/userService.js` — 后端服务层：verifyAdminPassword 改为 bcrypt 比对
+  - `create_users_table.sql` — SQL 初始化脚本密码替换为双层加密哈希
+  - `migrate_passwords.js` — 数据库密码迁移脚本（支持从明文/旧bcrypt迁移到双层加密）
+- **加密流程**：
+  ```
+  用户输入 "654321"
+    → 前端 SHA-256 → "8d969eef..."
+    → 发送到后端（DevTools 看到的是 SHA-256 哈希，非明文）
+    → 后端 bcrypt.compare(sha256值, 数据库bcrypt值)
+    → 数据库存储 bcrypt(SHA-256("654321"))
+  ```
+- **更新日期**：2026-06-07
 
 ***
 
@@ -395,6 +480,21 @@
 
 ***
 
-**文档版本**：v2.6\
-**创建日期**：2026年5月17日\
+**文档版本**：v3.2\
+**创建日期**：2026年6月7日\
 **适用项目**：图书馆值班系统
+## 2026-06-07 用户端排班表刷新按钮样式优化
+
+- **问题描述**：用户端排班表工具栏中的“刷新”按钮使用文本按钮样式，视觉弱，不够醒目。
+- **根本原因**：按钮使用 Element Plus 的 `text` 样式，没有单独的视觉层级和图标提示。
+- **解决方案**：为刷新按钮添加专用 `legacy-refresh-btn` class，加入刷新 SVG 图标、蓝色渐变胶囊背景、阴影和 hover/active 动效，并重新构建 `public` 前端产物。
+- **修改文件列表**：`client/src/views/HomeView.vue`、`client/src/styles.css`、`public/index.html`、`public/assets/index-232140ec.js`、`public/assets/index-85031ec8.css`、`mixed.md`
+- **所属分类**：前端、排班、交互优化
+
+## 2026-06-07 排班误删恢复能力增强
+
+- **问题描述**：管理员在排班编辑页面误删某个周次后，原逻辑会直接删除 `schedule_data` 中的数据，并继续删除 `beifen` 下的同名备份文件，导致恢复手段不足。
+- **根本原因**：删除操作使用硬删除，缺少数据库归档表；删除服务同时清理本地备份文件。
+- **解决方案**：新增 `schedule_data_archive` 归档表，删除周次前先把原排班记录复制到归档表；删除周次时不再删除 `beifen/*.json`；新增 `/api/schedule-archives` 查询归档接口和 `/api/restore-schedule` 恢复接口。
+- **修改文件列表**：`src/server/config/database.js`、`src/server/repositories/scheduleRepository.js`、`src/server/services/scheduleService.js`、`src/server/routes/scheduleRoutes.js`、`mixed.md`、`Ops.md`
+- **所属分类**：排班、数据安全、API

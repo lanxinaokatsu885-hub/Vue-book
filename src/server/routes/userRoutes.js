@@ -71,6 +71,16 @@ router.post('/users/:id/reset-password', asyncHandler(async (req, res) => {
     return res.json({ code: 200, msg: '密码重置成功', data: null });
 }));
 
+router.put('/users/:id/change-password', asyncHandler(async (req, res) => {
+    try {
+        await userService.changePassword(req.params.id, req.body.oldPassword, req.body.newPassword);
+        return res.json({ code: 200, msg: '密码修改成功', data: null });
+    } catch (error) {
+        const code = error.status || 500;
+        return res.status(code).json({ code, msg: error.message, data: null });
+    }
+}));
+
 router.delete('/users/:id', asyncHandler(async (req, res) => {
     const result = await userService.deleteUser(req.params.id);
     if (result.affectedRows === 0) {

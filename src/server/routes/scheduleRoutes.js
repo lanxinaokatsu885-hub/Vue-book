@@ -42,6 +42,11 @@ router.get('/list-weeks', asyncHandler(async (req, res) => {
     res.json({ code: 200, msg: '获取成功', data: weeks });
 }));
 
+router.get('/schedule-archives', asyncHandler(async (req, res) => {
+    const archives = await scheduleService.listArchivedSchedules(req.query.week);
+    res.json({ code: 200, msg: '获取成功', data: archives });
+}));
+
 router.get('/load-schedule', asyncHandler(async (req, res) => {
     const data = await scheduleService.getEditableSchedule(req.query.week);
     res.json({ code: 200, msg: '加载成功', data });
@@ -51,8 +56,16 @@ router.post('/delete-schedule', asyncHandler(async (req, res) => {
     if (!req.body.week) {
         return res.status(400).json({ code: 400, msg: '周次不能为空', data: null });
     }
-    await scheduleService.deleteSchedule(req.body.week);
-    return res.json({ code: 200, msg: '删除成功', data: null });
+    const data = await scheduleService.deleteSchedule(req.body.week);
+    return res.json({ code: 200, msg: '删除成功', data });
+}));
+
+router.post('/restore-schedule', asyncHandler(async (req, res) => {
+    if (!req.body.week) {
+        return res.status(400).json({ code: 400, msg: '周次不能为空', data: null });
+    }
+    const data = await scheduleService.restoreSchedule(req.body.week);
+    return res.json({ code: 200, msg: '恢复成功', data });
 }));
 
 router.post('/swap-shift', asyncHandler(async (req, res) => {

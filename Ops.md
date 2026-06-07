@@ -736,3 +736,30 @@ https://你的域名/api/health
 - 不要在未备份数据库的情况下执行结构调整或批量导入。
 - 生产环境修改 `server.js` 后必须重启 PM2。
 - 修改前端 JS/CSS 后建议修改 HTML 中的版本号参数，避免缓存问题。
+## 2026-06-07 排班误删恢复操作
+
+当管理员误删某个周次排班时，系统会先把 `schedule_data` 中被删除的记录归档到 `schedule_data_archive`，再执行删除。`beifen/*.json` 本地备份文件不会再随删除操作一起删除。
+
+查看最近归档记录：
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/schedule-archives" -Method Get
+```
+
+查看指定周次归档记录：
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/schedule-archives?week=第一周" -Method Get
+```
+
+恢复指定周次最近一次归档：
+
+```powershell
+Invoke-RestMethod `
+  -Uri "http://localhost:3000/api/restore-schedule" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"week":"第一周"}'
+```
+
+恢复后刷新排班编辑页面，确认该周次数据是否恢复。生产环境修改后需要重启 Node/PM2 服务，让新增接口生效。

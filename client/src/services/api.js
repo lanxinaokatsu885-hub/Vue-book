@@ -1,3 +1,10 @@
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function request(url, options = {}) {
     const init = {
         method: options.method || 'GET',
@@ -42,10 +49,17 @@ function okMessage(payload) {
 
 export const api = {
     async login(credentials) {
-        return dataOrThrow(await request('/api/login', { method: 'POST', body: credentials }));
+        const hashed = { ...credentials, password: await sha256(credentials.password) };
+        return dataOrThrow(await request('/api/login', { method: 'POST', body: hashed }));
     },
     async verifyAdminPassword(password) {
-        return dataOrThrow(await request('/api/verify-admin-password', { method: 'POST', body: { password } }));
+        const hashed = await sha256(password);
+        return dataOrThrow(await request('/api/verify-admin-password', { method: 'POST', body: { password: hashed } }));
+    },
+    async changePassword(userId, oldPassword, newPassword) {
+        const hashedOld = await sha256(oldPassword);
+        const hashedNew = await sha256(newPassword);
+        return okMessage(await request(`/api/users/${userId}/change-password`, { method: 'PUT', body: { oldPassword: hashedOld, newPassword: hashedNew } }));
     },
     async getSchedule(week) {
         const query = week ? `?week=${encodeURIComponent(week)}` : '';

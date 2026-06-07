@@ -15,6 +15,13 @@ const {
     replacePersonInCell
 } = require('../utils/schedule');
 
+function parseScheduleData(data) {
+    if (!data) {
+        return {};
+    }
+    return typeof data === 'string' ? JSON.parse(data) : data;
+}
+
 async function getAreasSchedule(week) {
     const row = await scheduleRepository.getLatestScheduleRow(week);
     const data = ensureAreasData(row && row.data);
@@ -44,7 +51,7 @@ async function saveSchedule({ schedule_data, week }) {
 
     const saveData = convertShiftDayFormat(schedule_data || []);
     saveData.week = weekKey;
-    await scheduleRepository.insertSchedule(saveData);
+    await scheduleRepository.upsertLatestSchedule(saveData);
 }
 
 async function listWeeks() {
@@ -52,18 +59,30 @@ async function listWeeks() {
 }
 
 async function deleteSchedule(week) {
-    await scheduleRepository.deleteWeek(week);
-    const backupPath = path.join(backupDir, `${week}.json`);
-    if (path.basename(backupPath) !== `${week}.json`) {
-        return;
+    return scheduleRepository.deleteWeek(week);
+}
+
+async function restoreSchedule(week) {
+    const archive = await scheduleRepository.getLatestArchivedSchedule(week);
+    if (!archive) {
+        const error = new Error('未找到可恢复的排班归档');
+        error.status = 404;
+        throw error;
     }
-    try {
-        await fs.unlink(backupPath);
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            console.error('删除备份文件失败:', error.message);
-        }
-    }
+
+    const data = parseScheduleData(archive.data);
+    data.week = week;
+    await scheduleRepository.upsertLatestSchedule(data);
+
+    return {
+        archiveId: archive.id,
+        week,
+        archivedAt: archive.archived_at
+    };
+}
+
+async function listArchivedSchedules(week) {
+    return scheduleRepository.listArchivedSchedules(week);
 }
 
 async function swapShift({ applicant, swapUser, originalShift, targetShift, reason, week }) {
@@ -127,7 +146,7 @@ async function swapShift({ applicant, swapUser, originalShift, targetShift, reas
     }
 
     scheduleData.week = weekKey;
-    await scheduleRepository.insertSchedule(scheduleData);
+    await scheduleRepository.upsertLatestSchedule(scheduleData);
     await requestRepository.insertSwapRequest({
         applicant,
         originalShift,
@@ -173,7 +192,7 @@ async function substituteShift({ applicant, substituteUser, substituteShift: shi
     cell.shift.days[cell.dayIndex] = replacePersonInCell(cell.shift.days[cell.dayIndex], applicant, substituteUser);
     scheduleData.week = weekKey;
 
-    await scheduleRepository.insertSchedule(scheduleData);
+    await scheduleRepository.upsertLatestSchedule(scheduleData);
     await requestRepository.insertSubstituteRequest({
         applicant,
         substituteUser,
@@ -282,17 +301,19 @@ async function revokeShift({ recordId, type }) {
 
     await requestRepository.deleteRequestById(type, recordId);
     scheduleData.week = weekKey;
-    await scheduleRepository.insertSchedule(scheduleData);
+    await scheduleRepository.upsertLatestSchedule(scheduleData);
 }
 
 module.exports = {
     deleteSchedule,
     getAreasSchedule,
     getEditableSchedule,
+    listArchivedSchedules,
     listSwapNotices,
     listTodayShiftRecords,
     listWeeks,
     revokeShift,
+    restoreSchedule,
     saveSchedule,
     substituteShift,
     swapShift

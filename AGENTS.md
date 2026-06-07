@@ -7,6 +7,7 @@
 ## 技术栈
 
 ### 前端
+
 - **Vue 3**：渐进式 JavaScript 框架
 - **Vite**：前端构建工具
 - **Element Plus**：Vue 3 UI 组件库
@@ -16,13 +17,17 @@
 - **HTML5/CSS3/JavaScript**：基础技术（传统页面仍保留）
 
 ### 后端
+
 - **Node.js**：运行环境
 - **Express**：Web框架
 - **MySQL**：数据库
 - **Multer**：文件上传
 - **mysql2**：数据库驱动
+- **bcryptjs**：密码哈希加密库（bcrypt层）
+- **crypto**（Node.js内置）：SHA-256 哈希（密码加密第一层）
 
 ### 其他
+
 - **Nginx**：反向代理（生产环境）
 - **PM2**：进程管理（生产环境）
 
@@ -30,66 +35,81 @@
 
 ```
 book/
-├── .claude/                # Claude IDE 配置
-├── beifen/                 # 备份文件夹
-│   ├── 第一周.json         # 第一周排班备份
-│   ├── 第二周.json         # 第二周排班备份
-│   ├── 第三周.json         # 第三周排班备份
-│   └── 第四周.json         # 第四周排班备份
-├── book/                   # 传统主页面（原始版）
-│   ├── bgm/                # 历史遗留音乐资源（当前页面未接入）
-│   ├── index.html          # 主页面
-│   ├── login.html          # 登录页面
-│   ├── script.js           # 主页面逻辑
-│   └── style.css           # 主页面样式
-├── client/                 # Vue 3 新版前端
+├── client/                 # Vue 3 前端
 │   ├── src/
 │   │   ├── components/     # Vue 组件
+│   │   │   ├── ContentEditorDialog.vue
+│   │   │   ├── ImagePreview.vue
+│   │   │   └── ScheduleBoard.vue
 │   │   ├── services/       # API 服务
+│   │   │   └── api.js
 │   │   ├── stores/         # Pinia 状态管理
+│   │   │   └── auth.js
 │   │   ├── utils/          # 工具函数
+│   │   │   └── schedule.js
 │   │   ├── views/          # 页面视图
+│   │   │   ├── AdminView.vue
+│   │   │   ├── HomeView.vue
+│   │   │   └── LoginView.vue
 │   │   ├── App.vue         # 根组件
 │   │   ├── main.js         # 入口文件
 │   │   ├── router.js       # 路由配置
 │   │   └── styles.css      # 全局样式
 │   └── index.html          # HTML 入口
-├── paiban/                 # 排班编辑页面
-│   ├── index.html          # 排班编辑页面
-│   ├── script.js           # 排班编辑页面逻辑
-│   └── style.css           # 排班编辑页面样式
 ├── public/                 # 构建产物目录（Vite 打包输出）
 │   ├── assets/             # 静态资源
+│   ├── 1.jpg               # 图片资源
+│   ├── 3.jpg               # 图片资源
 │   └── index.html          # 构建后的入口
-├── src/                    # 新版后端源码
+├── src/                    # 后端源码
 │   └── server/
 │       ├── config/         # 配置文件
+│       │   ├── database.js # 数据库配置
+│       │   └── paths.js    # 路径配置
 │       ├── constants/      # 常量定义
+│       │   ├── links.js    # 链接常量
+│       │   └── schedule.js # 排班常量
 │       ├── middleware/     # 中间件
+│       │   └── upload.js   # 文件上传中间件
 │       ├── repositories/   # 数据访问层
+│       │   ├── contentRepository.js
+│       │   ├── linkRepository.js
+│       │   ├── requestRepository.js
+│       │   ├── scheduleRepository.js
+│       │   └── userRepository.js
 │       ├── routes/         # 路由定义
+│       │   ├── contentRoutes.js
+│       │   ├── index.js
+│       │   ├── linkRoutes.js
+│       │   ├── scheduleRoutes.js
+│       │   └── userRoutes.js
 │       ├── services/       # 业务逻辑层
+│       │   ├── contentService.js
+│       │   ├── scheduleService.js
+│       │   └── userService.js
 │       ├── utils/          # 工具函数
+│       │   ├── asyncHandler.js
+│       │   └── schedule.js
 │       └── app.js          # Express 应用入口
-├── speedfind/              # 快速查找功能
-│   ├── challenge/          # 挑战模式
-│   ├── migrations/         # 数据库迁移脚本
-│   └── ...
 ├── .gitignore              # Git忽略文件
+├── AGENTS.md               # 项目文档
+├── Ops.md                  # 运维文档
+├── mixed.md                # 问题记录文档
 ├── add_week_field.sql      # 数据库周次字段添加脚本
 ├── create_notices_table.sql # 公告表创建脚本
 ├── create_users_table.sql  # 用户表创建脚本
 ├── init_database.sql       # 数据库初始化脚本
+├── migrate_passwords.js    # 数据库密码迁移脚本（SHA-256+bcrypt双层加密）
 ├── package-lock.json       # NPM依赖锁定文件
 ├── package.json            # NPM依赖配置
 ├── server.js               # 主后端入口
-├── vite.config.js          # Vite 配置文件
-└── 操作文档-代换班记录周次修改.txt # 操作文档
+└── vite.config.js          # Vite 配置文件
 ```
 
 ## 核心功能
 
 ### 1. 排班管理
+
 - **排班编辑**：拖拽式排班，支持多人同时排班
 - **周次切换**：按周查看和编辑排班
 - **人员管理**：添加、删除、修改用户，重置密码
@@ -97,23 +117,27 @@ book/
 - **工时统计**：自动计算员工工作时数
 
 ### 2. 代换班系统
+
 - **换班申请**：与他人换班
 - **代班申请**：请他人代班
 - **撤销代换班**：撤销已提交的申请
 - **代换班记录**：按周查看代换班记录
 
 ### 3. 公告和活动
+
 - **公告发布**：发布带有图片的公告
 - **活动发布**：发布带有图片的活动
 - **图片预览**：点击图片可预览大图
 - **活动签到/签退**：跳转到签到/签退链接
 
 ### 4. 用户系统
+
 - **登录认证**：用户身份验证
 - **角色权限**：管理员/员工角色区分
 - **密码重置**：密码修改与重置
 
 ### 5. 其他功能
+
 - **图书查找**：跳转到图书查找链接
 - **负责书架**：查看书架负责情况
 - **巡查表**：查看巡查记录
@@ -125,17 +149,23 @@ book/
 ## 数据库结构
 
 ### 1. users表
+
 - **id**：用户ID
-- **username**：用户名
-- **password**：密码（加密存储）
-- **role**：角色（normal:普通管理员, scheduler:排班员）
+- **name**：姓名
+- **username**：用户名（唯一）
+- **password**：密码（SHA-256 + bcrypt 双层哈希加密存储）
+- **role**：角色（employee:员工, admin:管理员）
+- **created\_at**：创建时间
+- **updated\_at**：更新时间
 
 ### 2. schedule表
+
 - **id**：记录ID
 - **week**：周次
 - **data**：排班数据（JSON格式）
 
-### 3. swap_requests表（换班申请）
+### 3. swap\_requests表（换班申请）
+
 - **id**：申请ID
 - **requester**：申请人
 - **receiver**：接收人
@@ -144,7 +174,8 @@ book/
 - **status**：状态（pending:待处理, approved:已批准, rejected:已拒绝）
 - **week**：周次
 
-### 4. substitute_requests表（代班申请）
+### 4. substitute\_requests表（代班申请）
+
 - **id**：申请ID
 - **requester**：申请人
 - **receiver**：接收人
@@ -154,16 +185,18 @@ book/
 - **week**：周次
 
 ### 5. notices表（公告和活动）
+
 - **id**：记录ID
 - **text**：文本内容
 - **image**：图片（单图）
 - **images**：图片数组（多图）
 - **type**：类型（notice:公告, activity:活动）
-- **created_at**：创建时间
+- **created\_at**：创建时间
 
 ## 后端架构
 
 ### 分层设计
+
 - **Routes 层**：路由定义与请求处理
 - **Services 层**：业务逻辑实现
 - **Repositories 层**：数据访问与持久化
@@ -174,20 +207,25 @@ book/
 ## 部署说明
 
 ### 本地开发
+
 #### 后端开发
+
 1. **安装依赖**：`npm install`
 2. **启动后端服务器**：`npm run dev` 或 `node server.js`
 3. **后端地址**：`http://localhost:3000`
 
 #### 前端开发（Vue 3 版）
+
 1. **启动前端开发服务器**：`npm run client:dev`
 2. **前端地址**：`http://localhost:5173`
 3. **API 代理**：Vite 已配置 /api、/uploads、/static 代理到后端
 
 #### 传统版本访问
+
 - **访问地址**：`http://localhost:3000/book`
 
 ### 生产环境
+
 1. **构建前端**：`npm run build`
 2. **安装依赖**：`npm install`
 3. **配置Nginx**：设置反向代理和静态文件服务
@@ -197,11 +235,13 @@ book/
 ## 关键API
 
 ### 1. 排班相关
+
 - **GET /api/schedule**：获取排班数据
 - **POST /api/schedule**：保存排班数据
 - **GET /api/list-weeks**：获取周次列表
 
 ### 2. 代换班相关
+
 - **POST /api/swap-shift**：提交换班申请
 - **POST /api/substitute**：提交代班申请
 - **POST /api/approve-request**：批准代换班申请
@@ -211,6 +251,7 @@ book/
 - **GET /api/substitute-requests**：获取代班申请
 
 ### 3. 用户相关
+
 - **POST /api/login**：登录
 - **POST /api/logout**：登出
 - **GET /api/users**：获取用户列表
@@ -218,14 +259,17 @@ book/
 - **PUT /api/users**：更新用户
 - **DELETE /api/users**：删除用户
 - **POST /api/reset-password**：重置密码
+- **PUT /api/users/:id/change-password**：用户自行修改密码
 
 ### 4. 公告和活动相关
+
 - **GET /api/notice**：获取公告
 - **POST /api/notice**：保存公告
 - **GET /api/activity**：获取活动
 - **POST /api/activity**：保存活动
 
 ### 5. 其他
+
 - **POST /api/upload**：上传文件
 - **DELETE /api/delete-image**：删除图片
 
@@ -245,7 +289,7 @@ book/
 2. **权限管理**：确保只有授权用户可以访问排班编辑页面
 3. **图片管理**：上传的图片会保存在`uploads`目录，定期清理无用图片
 4. **性能优化**：使用CDN缓存静态资源，优化数据库查询
-5. **安全性**：使用HTTPS，对密码进行加密存储
+5. **安全性**：使用HTTPS，密码采用前端 SHA-256 + 后端 bcrypt 双层加密存储
 6. **开发环境**：建议使用 `npm run dev` 启动后端，`npm run client:dev` 启动前端
 
 ## 文档维护规则
@@ -280,13 +324,33 @@ book/
   - 备份恢复流程
   - 安全配置建议
 
+### new\.md 更新规则
+
+- **用途**：记录项目的功能更新、安全增强、体验优化等重要变更
+- **更新时机**：
+  - 完成新功能开发后
+  - 进行安全增强后
+  - 优化用户体验后
+  - 精简或移除功能后
+  - 任何重要的功能变更后
+- **更新内容**：
+  - 更新标题（简洁描述变更内容）
+  - 更新类型（安全增强 | 功能优化 | 功能精简 | 新功能 | 修复BUG）
+  - 更新内容（简要描述变更细节）
+  - 修改文件（列出相关文件，使用可点击的链接格式）
+  - 影响范围（说明影响的功能模块）
+- **格式**：按日期倒序排列（最新更新在上），遵循 new\.md 中的模板格式
+
 ### 文档更新流程
 
 1. 完成代码修复或功能变更
-2. 立即更新对应文档（mixed.md 或 Ops.md）
-3. 如同时涉及问题修复和运维变更，两个文档都更新
+2. 立即更新对应文档：
+   - 问题/BUG 修复 → 更新 \[mixed.md]\(file:///f:/开发/book - 副本/mixed.md)
+   - 功能更新/优化 → 更新 \[new\.md]\(file:///f:/开发/book - 副本/new\.md)
+   - 运维相关变更 → 更新 \[Ops.md]\(file:///f:/开发/book - 副本/Ops.md)
+3. 如同时涉及多种类型，多个文档都更新
 4. 在文档中记录当前日期
-5. 混合问题先记录到 mixed.md，运维相关再同步到 Ops.md
+5. 混合问题先记录到 mixed.md，功能变更记录到 new\.md，运维相关同步到 Ops.md
 
 ## 后续优化方向
 
@@ -298,12 +362,14 @@ book/
 6. **TypeScript迁移**：考虑将项目迁移到TypeScript以提高代码质量
 7. **单元测试**：添加前后端的单元测试覆盖
 
----
+***
 
-**项目状态**：已完成核心功能开发，正在进行 Vue 3 重构。支持传统版本和 Vue 3 新版本并存。
+**项目状态**：已完成核心功能开发
 
 **项目文档**：
+
 - [mixed.md](file:///f:/开发/book%20-%20副本/mixed.md) - 问题总结与修复历史
+- [new.md](file:///f:/开发/book%20-%20副本/new.md) - 功能更新记录
 - [Ops.md](file:///f:/开发/book%20-%20副本/Ops.md) - 运维说明文档
 
-**最后更新时间**：2026-06-06
+**最后更新时间**：2026-06-07
